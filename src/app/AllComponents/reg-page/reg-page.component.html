@@ -1,0 +1,23 @@
+<div class="modal fade" id="regModal" tabindex="-1" aria-labelledby="regModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background: transparent; width: 300px; border: none;">
+      <div class="modal-body" style="padding: 0px;">
+        <div class="form-container">
+          <div>
+            <mat-tab-group (selectedIndexChange)="TabChange($event)">
+              <mat-tab label="Login"></mat-tab>
+              <mat-tab label="Signup"></mat-tab>
+            </mat-tab-group>
+          </div>
+          <ng-container *ngIf="currentView === 'login'">
+            <app-log-in></app-log-in>
+          </ng-container>
+          <ng-container *ngIf="currentView === 'signup'">
+            <app-sign-up></app-sign-up>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

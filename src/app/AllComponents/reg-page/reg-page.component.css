@@ -1,0 +1,23 @@
+.form-container {
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+  width: 280px;
+  height: auto;
+  margin-top: 20px;
+  border: none;
+  padding: 20px 15px;
+}
+
+.modal-content {
+  background: linear-gradient(145deg, #f8f9fa, #e0e0e0);
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 15px;
+}
+
+mat-tab-group {
+  background-color: #f1f1f1;
+  border-radius: 8px;
+  padding: 5px;
+}

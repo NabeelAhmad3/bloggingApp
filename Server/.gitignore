@@ -1,0 +1,27 @@
+# Node modules
+/node_modules/
+
+# Log files
+npm-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Miscellaneous
+/.angular/cache
+.sass-cache/
+coverage/
+libpeerconnection.log
+testem.log
+/typings
+
+# System files
+.DS_Store
+Thumbs.db
