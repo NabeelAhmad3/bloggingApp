@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
 })
 export class BlogPostsComponent {
   editerForm: FormGroup;
-  formOutput: any;
+  formOutput: any={};
   showEmojiPicker: boolean = false;
 
   constructor(private fb: FormBuilder, private http: HttpClient) {

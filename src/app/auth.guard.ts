@@ -9,6 +9,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   if (isLoggedIn) {
     return true; 
   } else {
+    alert('To create post login First')
     router.navigate(['/home']);
     return false;
   }

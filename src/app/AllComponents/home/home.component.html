@@ -1,1 +1,14 @@
-<h4>this is home</h4>
+<div class="blog-container">
+  <div *ngIf="blogPosts.length === 0" class="no-posts">
+    No blog posts available.
+  </div>
+  <div *ngFor="let post of blogPosts" class="post">
+    <div class="post-header">
+      <p class="post-author">{{ post.name }}</p>
+      <p class="post-date">{{ post.created_at | date: 'mediumDate' }}</p>
+    </div>
+    <h2 class="post-title">{{ post.title }}</h2>
+    <p class="post-description">{{ post.description }}</p>
+    <img *ngIf="post.image" [src]="post.image" alt="Blog image" class="post-image"/>
+  </div>
+</div>
