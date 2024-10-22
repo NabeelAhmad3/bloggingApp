@@ -9,6 +9,19 @@
     </div>
     <h2 class="post-title">{{ post.title }}</h2>
     <p class="post-description">{{ post.description }}</p>
-    <img *ngIf="post.image" [src]="post.image" alt="Blog image" class="post-image"/>
+    <img *ngIf="post.image" [src]="post.image" alt="Blog image" class="post-image" />
+    <div class="post-actions">
+      <button class="btn btn-success mt-4 cursor-pointer mr-2" (click)="likePost(post.postsid)">Like</button>
+      <button class="btn btn-success mt-4 cursor-pointer" (click)="commentPost(post.postsid)">Comment</button>
+    </div>
+    <div *ngIf="post.likes > 0" class="post-likes">
+      Likes: {{ post.likes }}
+    </div>
+    <div *ngIf="post.comments.length > 0" class="post-comments">
+      <h4>Comments:</h4>
+      <ul>
+        <li *ngFor="let comment of post.comments">{{ comment }}</li>
+      </ul>
+    </div>
   </div>
 </div>

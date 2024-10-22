@@ -38,7 +38,6 @@ export class BlogPostsComponent {
     }
   }
 
-  // Method to add selected emoji to the textarea
   addEmoji(event: any) {
     const descriptionControl = this.editerForm.get('description');
     const currentText = descriptionControl?.value || '';
