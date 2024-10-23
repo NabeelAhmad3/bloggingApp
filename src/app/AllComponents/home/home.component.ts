@@ -1,17 +1,17 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 
 interface BlogPost {
-  postsid: string;
+  postsid: number;
   name: string;
   created_at: Date;
   title: string;
   description: string;
   image: string;
   likes: number;
-  comments: string[];
+  comment: string[];
 }
 
 @Component({
@@ -24,17 +24,27 @@ interface BlogPost {
 export class HomeComponent implements OnInit {
   blogPosts: BlogPost[] = [];
   private socket: Socket | null = null;
+  isLoggedIn: boolean = false;
+  logindata: any = {};
 
   constructor(
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) { }
+    @Inject(PLATFORM_ID) private platformId: Object ,
+    private cdr: ChangeDetectorRef ) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.logindata = {
+        token: localStorage.getItem('authToken'),
+        userid: localStorage.getItem('authUserId')
+      };
+      this.isLoggedIn = !!this.logindata.token;
+    }
+  }
 
   ngOnInit(): void {
     this.getBlogPosts()
       .then(() => {
         if (isPlatformBrowser(this.platformId)) {
-          this.setupSocketConnection(); // Establish socket connection only in the browser
+          this.setupSocketConnection();
         }
       });
   }
@@ -47,8 +57,11 @@ export class HomeComponent implements OnInit {
             this.blogPosts = data.map(post => ({
               ...post,
               likes: post.likes || 0,
-              comments: post.comments || []
+              comment: post.comment || [],
+              postsid: post.postsid
             }));
+
+            this.cdr.detectChanges();
             resolve();
           },
           error: (error) => {
@@ -61,41 +74,71 @@ export class HomeComponent implements OnInit {
 
   private setupSocketConnection(): void {
     this.socket = io('http://localhost:5000');
+
     this.socket.on('connect', () => {
-      console.log('Socket connected');
+      console.log('Socket connected from frontend');
     });
-    this.socket.on('likeUpdate', (updatedPost: { postsid: string; likes: number }) => {
+
+    this.socket.on('likeUpdate', (updatedPost: { postsid: number; likes: number }) => {
       this.updatePostLikes(updatedPost);
     });
-    this.socket.on('commentUpdate', (updatedComment: { id: string; comment: string }) => {
+
+    this.socket.on('commentUpdate', (updatedComment: { id: number; comment: string[] }) => {
       this.updatePostComments(updatedComment);
+    });
+
+    this.socket.on('error', (errorMessage: string) => {
+      console.error('Server error:', errorMessage);
+      alert(errorMessage);
     });
   }
 
-  private updatePostLikes(updatedPost: { postsid: string; likes: number }): void {
+  private updatePostLikes(updatedPost: { postsid: number; likes: number }): void {
     const post = this.blogPosts.find(p => p.postsid === updatedPost.postsid);
     if (post) {
       post.likes = updatedPost.likes;
+
+      this.cdr.detectChanges();
     }
   }
 
-  private updatePostComments(updatedComment: { id: string; comment: string }): void {
+  private updatePostComments(updatedComment: { id: number; comment: string[] }): void {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.id);
     if (post) {
-      post.comments.push(updatedComment.comment);
+      post.comment = updatedComment.comment;
+
+      this.cdr.detectChanges();
     }
   }
 
-  likePost(postId: string): void {
-    if (this.socket) {
+  likePost(postId: number): void {
+    if (!this.isLoggedIn) {
+      alert('Please register or log in.');
+      return;
+    }
+
+    console.log('Liking post with ID:', postId);
+    if (this.socket && postId) {
       this.socket.emit('likePost', postId);
+    } else {
+      console.error('Post ID is missing or invalid');
+      alert('Post ID is missing or invalid');
     }
   }
 
-  commentPost(postId: string): void {
+  commentPost(postId: number): void {
+    if (!this.isLoggedIn) {
+      alert('Please register or log in.');
+      return;
+    }
+
     const comment = prompt('Enter your comment:');
-    if (comment && this.socket) {
+    console.log('Commenting on post with ID:', postId);
+    if (this.socket && postId && comment) {
       this.socket.emit('commentPost', { postId, comment });
+    } else {
+      console.error('Post ID or comment is missing or invalid');
+      alert('Post ID or comment is missing or invalid');
     }
   }
 }

@@ -35,9 +35,30 @@ router.post('/posting', async (request, response) => {
 router.get('/blog_view', async (request, response) => {
     try {
         const [results] = await pool.query(
-            'SELECT blog_posts.title, blog_posts.description, blog_posts.image,blog_posts.created_at, users.name FROM blog_posts INNER JOIN users ON blog_posts.user_id = users.userid;'
+            `SELECT 
+                users.name,
+                blog_posts.created_at, 
+                blog_posts.title, 
+                blog_posts.description, 
+                blog_posts.postsid, 
+                blog_posts.image, 
+                blog_posts.likes, 
+                GROUP_CONCAT(comments.comment SEPARATOR ', ') AS comments
+            FROM 
+                blog_posts 
+            INNER JOIN 
+                users ON blog_posts.user_id = users.userid 
+            LEFT JOIN 
+                comments ON blog_posts.postsid = comments.post_id 
+            GROUP BY 
+                blog_posts.postsid;`
         );
-        response.json(results);
+        const formattedResults = results.map(post => ({
+            ...post,
+            comment: post.comments ? post.comments.split(', ') : [] // Split the concatenated comments into an array
+        }));
+
+        response.json(formattedResults);
     } catch (error) {
         console.error('Error fetching blog posts:', error);
         response.status(500).json({ message: 'Error fetching blog posts', error });

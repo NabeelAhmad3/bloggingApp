@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -15,7 +15,7 @@ export class HeaderComponent implements OnInit {
   isLoggedIn: boolean = false;
   logindata: any = {};
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -31,10 +31,10 @@ export class HeaderComponent implements OnInit {
     if (confirm('Are you sure you want to logout?')) {
       if (isPlatformBrowser(this.platformId)) {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('authUserId');
         this.isLoggedIn = false;
-        window.location.reload();
+        this.cdr.detectChanges(); 
       }
     }
   }
-
 }
