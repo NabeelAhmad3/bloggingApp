@@ -1,6 +1,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
 
 interface BlogPost {
@@ -12,12 +13,14 @@ interface BlogPost {
   image: string;
   likes: number;
   comment: string[];
+  commentInput?: string; 
+  showCommentInput?: boolean; 
 }
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule,FormsModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -29,8 +32,8 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object ,
-    private cdr: ChangeDetectorRef ) {
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private cdr: ChangeDetectorRef) {
     if (isPlatformBrowser(this.platformId)) {
       this.logindata = {
         token: localStorage.getItem('authToken'),
@@ -58,7 +61,8 @@ export class HomeComponent implements OnInit {
               ...post,
               likes: post.likes || 0,
               comment: post.comment || [],
-              postsid: post.postsid
+              commentInput: '',
+              showCommentInput: false
             }));
 
             this.cdr.detectChanges();
@@ -97,7 +101,6 @@ export class HomeComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === updatedPost.postsid);
     if (post) {
       post.likes = updatedPost.likes;
-
       this.cdr.detectChanges();
     }
   }
@@ -106,39 +109,42 @@ export class HomeComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.id);
     if (post) {
       post.comment = updatedComment.comment;
-
       this.cdr.detectChanges();
     }
   }
 
   likePost(postId: number): void {
-    if (!this.isLoggedIn) {
-      alert('Please register or log in.');
-      return;
+    if (!this.isLoggedIn) { 
+      alert('Please log in to Like');
+      return; 
     }
-
-    console.log('Liking post with ID:', postId);
-    if (this.socket && postId) {
+    const post = this.blogPosts.find(p => p.postsid === postId);
+    if (this.socket && postId && post) {
+      post.likes += 1;
+      this.cdr.detectChanges();
       this.socket.emit('likePost', postId);
     } else {
       console.error('Post ID is missing or invalid');
-      alert('Post ID is missing or invalid');
     }
   }
 
   commentPost(postId: number): void {
+    const post = this.blogPosts.find(p => p.postsid === postId);
+    if (this.socket && postId && post && post.commentInput) {
+      post.comment = [...(post.comment || []), post.commentInput];
+      this.cdr.detectChanges();
+      this.socket.emit('commentPost', { postId, comment: post.commentInput });
+      post.commentInput = ''; 
+    } else {
+      console.error('Post ID or comment input is missing or invalid');
+    }
+  }
+
+  toggleCommentInput(post: BlogPost): void {
     if (!this.isLoggedIn) {
-      alert('Please register or log in.');
+      alert('Please log in to comment.');
       return;
     }
-
-    const comment = prompt('Enter your comment:');
-    console.log('Commenting on post with ID:', postId);
-    if (this.socket && postId && comment) {
-      this.socket.emit('commentPost', { postId, comment });
-    } else {
-      console.error('Post ID or comment is missing or invalid');
-      alert('Post ID or comment is missing or invalid');
-    }
+    post.showCommentInput = !post.showCommentInput;
   }
 }

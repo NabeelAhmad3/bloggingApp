@@ -33,7 +33,6 @@ export class LogInComponent implements OnInit {
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('authUserId', response.userid);
 
-        alert('user login successfully');
         window.location.reload();
 
       },

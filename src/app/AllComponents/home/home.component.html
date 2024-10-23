@@ -5,20 +5,24 @@
   <div *ngFor="let post of blogPosts" class="post">
     <div class="post-header">
       <p class="post-author">{{ post.name }}</p>
-      <p class="post-date">{{ post.created_at | date: 'mediumDate' }}</p>
+      <p >{{ post.created_at | date: 'mediumDate' }}</p>
     </div>
-    <h2 class="post-title">{{ post.title }}</h2>
-    <p class="post-description">{{ post.description }}</p>
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.description }}</p>
     <img *ngIf="post.image" [src]="post.image" alt="Blog image" class="post-image" />
-    <div class="post-actions">
+    <div class="d-flex align-items-center ">
       <button class="btn btn-success mt-4 cursor-pointer mr-2" (click)="likePost(post.postsid)">Like</button>
-      <button class="btn btn-success mt-4 cursor-pointer" (click)="commentPost(post.postsid)">Comment</button>
+      <button class="btn btn-success mt-4 cursor-pointer" (click)="toggleCommentInput(post)">Comment</button>
+      <div *ngIf="isLoggedIn && post.showCommentInput" class="comment-input ms-3 mt-4">
+        <input type="text" [(ngModel)]="post.commentInput" placeholder="Enter your comment" />
+        <button class="btn btn-primary" (click)="commentPost(post.postsid)">Submit</button>
+      </div>      
     </div>
     <div *ngIf="isLoggedIn && post.likes > 0" class="post-likes">
       Likes: {{ post.likes }}
     </div>
-    <div *ngIf="isLoggedIn && post.comment.length > 0" class="post-comments">
-      Comments:
+    <div *ngIf="isLoggedIn && post.comment.length > 0" class="post-comments p-3">
+      <h6>Comments:</h6>
       <ul>
         <li *ngFor="let comment of post.comment">{{ comment }}</li>
       </ul>

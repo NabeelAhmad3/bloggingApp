@@ -65,8 +65,7 @@ export class BlogPostsComponent {
 
     this.http.post('http://localhost:5000/blog_posts/posting', formData)
       .subscribe({
-        next: (response) => {
-          console.log('Blog post created successfully:', response);
+        next: () => {
           this.editerForm.reset();
         },
         error: (error) => {

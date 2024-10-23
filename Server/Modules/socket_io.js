@@ -13,11 +13,6 @@ function setupSocketIO(server) {
         console.log('user connected from backend');
 
         socket.on('likePost', (postId) => {
-            if (!postId) {
-                socket.emit('error', 'Post ID is missing or invalid');
-                return;
-            }
-
             pool.query(
                 'UPDATE blog_posts SET likes = likes + 1 WHERE postsid = ?',
                 [postId],
@@ -41,10 +36,6 @@ function setupSocketIO(server) {
         });
 
         socket.on('commentPost', ({ postId, comment }) => {
-            if (!postId || !comment) {
-                socket.emit('error', 'Post ID or comment is missing or invalid');
-                return;
-            }
 
             pool.query(
                 'INSERT INTO comments (post_id, comment) VALUES (?, ?)',

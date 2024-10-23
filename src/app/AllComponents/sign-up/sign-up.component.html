@@ -1,5 +1,4 @@
 <div class="fullForm mt-4">
-  <div class="form-container">
     <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()" (keydown.enter)="onSubmit()" class="needs-validation">
       <p class="form-title">Create an account</p>
 
@@ -43,4 +42,3 @@
       <button type="submit" class="btn btn-primary" [disabled]="signUpForm.invalid">Create an account</button>
     </form>
   </div>
-</div>

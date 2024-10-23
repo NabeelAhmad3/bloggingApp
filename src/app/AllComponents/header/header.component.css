@@ -1,0 +1,26 @@
+.navbar {
+    background-color: #ffffff; 
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  }
+  
+  .navbar-brand {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+  }
+  
+  
+  .navbar-nav .nav-link {
+    font-size: 1.1rem;
+    color: rgb(4, 69, 34);
+    margin-right: 15px; 
+    transition: color 0.3s ease, background-color 0.3s ease; 
+    display: flex;
+    align-items: center;
+  }
+  
+  
+
+  
