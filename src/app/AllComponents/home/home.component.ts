@@ -13,14 +13,15 @@ interface BlogPost {
   image: string;
   likes: number;
   comment: string[];
-  commentInput?: string; 
-  showCommentInput?: boolean; 
+  commentInput?: string;
+  showCommentInput?: boolean;
+  hasLiked: boolean; 
 }
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, HttpClientModule,FormsModule],
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -33,7 +34,8 @@ export class HomeComponent implements OnInit {
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private cdr: ChangeDetectorRef) {
+    private cdr: ChangeDetectorRef
+  ) {
     if (isPlatformBrowser(this.platformId)) {
       this.logindata = {
         token: localStorage.getItem('authToken'),
@@ -53,8 +55,10 @@ export class HomeComponent implements OnInit {
   }
 
   private getBlogPosts(): Promise<void> {
+    const userId = this.logindata.userid;
+
     return new Promise((resolve, reject) => {
-      this.http.get<BlogPost[]>('http://localhost:5000/blog_posts/blog_view')
+      this.http.get<BlogPost[]>(`http://localhost:5000/blog_posts/blog_view?userId=${userId}`)
         .subscribe({
           next: (data) => {
             this.blogPosts = data.map(post => ({
@@ -62,7 +66,8 @@ export class HomeComponent implements OnInit {
               likes: post.likes || 0,
               comment: post.comment || [],
               commentInput: '',
-              showCommentInput: false
+              showCommentInput: false,
+              hasLiked: post.hasLiked 
             }));
 
             this.cdr.detectChanges();
@@ -77,7 +82,10 @@ export class HomeComponent implements OnInit {
   }
 
   private setupSocketConnection(): void {
-    this.socket = io('http://localhost:5000');
+    const userId = this.logindata.userid;
+    this.socket = io('http://localhost:5000', {
+      query: { userId }
+    });
 
     this.socket.on('connect', () => {
       console.log('Socket connected from frontend');
@@ -101,7 +109,6 @@ export class HomeComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === updatedPost.postsid);
     if (post) {
       post.likes = updatedPost.likes;
-      this.cdr.detectChanges();
     }
   }
 
@@ -109,19 +116,18 @@ export class HomeComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.id);
     if (post) {
       post.comment = updatedComment.comment;
-      this.cdr.detectChanges();
     }
   }
 
   likePost(postId: number): void {
-    if (!this.isLoggedIn) { 
-      alert('Please log in to Like');
-      return; 
-    }
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post) {
+      if (post.hasLiked) {
+        console.log('You can only like this post once.');
+        return;
+      }
       post.likes += 1;
-      this.cdr.detectChanges();
+      post.hasLiked = true;
       this.socket.emit('likePost', postId);
     } else {
       console.error('Post ID is missing or invalid');
@@ -132,9 +138,8 @@ export class HomeComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post && post.commentInput) {
       post.comment = [...(post.comment || []), post.commentInput];
-      this.cdr.detectChanges();
       this.socket.emit('commentPost', { postId, comment: post.commentInput });
-      post.commentInput = ''; 
+      post.commentInput = '';
     } else {
       console.error('Post ID or comment input is missing or invalid');
     }

@@ -30,40 +30,42 @@ router.post('/posting', async (request, response) => {
         response.status(500).json({ error: 'An error occurred while creating the blog post', details: error });
     }
 });
-
-
 router.get('/blog_view', async (request, response) => {
+    const userId = request.query.userId; 
     try {
-        const [results] = await pool.query(
-            `SELECT 
+        const [results] = await pool.query(`
+            SELECT 
                 users.name,
                 blog_posts.created_at, 
                 blog_posts.title, 
                 blog_posts.description, 
                 blog_posts.postsid, 
                 blog_posts.image, 
-                blog_posts.likes, 
-                GROUP_CONCAT(comments.comment SEPARATOR ', ') AS comments
+                COUNT(post_likes.user_id) AS likes,
+                GROUP_CONCAT(comments.comment SEPARATOR ', ') AS comments,
+                (SELECT COUNT(*) FROM post_likes WHERE user_id = ? AND post_id = blog_posts.postsid) > 0 AS hasLiked
             FROM 
                 blog_posts 
             INNER JOIN 
                 users ON blog_posts.user_id = users.userid 
             LEFT JOIN 
                 comments ON blog_posts.postsid = comments.post_id 
+            LEFT JOIN 
+                post_likes ON blog_posts.postsid = post_likes.post_id
             GROUP BY 
-                blog_posts.postsid;`
-        );
+                blog_posts.postsid
+        `, [userId]); 
         const formattedResults = results.map(post => ({
             ...post,
             comment: post.comments ? post.comments.split(', ') : [] // Split the concatenated comments into an array
         }));
-
         response.json(formattedResults);
     } catch (error) {
         console.error('Error fetching blog posts:', error);
         response.status(500).json({ message: 'Error fetching blog posts', error });
     }
 });
+
 
 
 module.exports = router;

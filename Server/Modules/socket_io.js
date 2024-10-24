@@ -10,33 +10,41 @@ function setupSocketIO(server) {
     });
 
     io.on('connection', (socket) => {
-        console.log('user connected from backend');
+        console.log('socket connected:', socket.id);
 
         socket.on('likePost', (postId) => {
+            const userId = socket.handshake.query.userId;
+            console.log('Received userId:', userId);
+            if (!userId) {
+                console.error('User ID is null or undefined.');
+                socket.emit('error', 'User ID cannot be null');
+                return;
+            }
+
             pool.query(
-                'UPDATE blog_posts SET likes = likes + 1 WHERE postsid = ?',
-                [postId],
+                'INSERT INTO post_likes (user_id, post_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE id=id',
+                [userId, postId],
                 (error) => {
                     if (error) {
                         console.error('Error updating likes:', error);
                         socket.emit('error', 'Failed to update likes');
                         return;
                     }
-                    pool.query('SELECT likes FROM blog_posts WHERE postsid = ?', [postId], (error, rows) => {
+                    pool.query('SELECT COUNT(*) AS totalLikes FROM post_likes WHERE post_id = ?', [postId], (error, rows) => {
                         if (error) {
                             console.error('Error fetching updated likes:', error);
                             socket.emit('error', 'Failed to fetch updated likes');
                             return;
                         }
-                        const updatedLikes = rows[0]?.likes || 0;
-                        io.emit('likeUpdate', { postsid: postId, likes: updatedLikes });
+
+                        const totalLikes = rows[0]?.totalLikes || 0;
+                        io.emit('likeUpdate', { postsid: postId, likes: totalLikes });
                     });
                 }
             );
         });
 
         socket.on('commentPost', ({ postId, comment }) => {
-
             pool.query(
                 'INSERT INTO comments (post_id, comment) VALUES (?, ?)',
                 [postId, comment],
@@ -60,7 +68,7 @@ function setupSocketIO(server) {
         });
 
         socket.on('disconnect', () => {
-            console.log('user disconnected:', socket.id);
+            console.log('socket disconnected:', socket.id);
         });
     });
 

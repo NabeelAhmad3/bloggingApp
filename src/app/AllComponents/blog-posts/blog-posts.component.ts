@@ -1,11 +1,11 @@
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-blog-posts',
@@ -18,8 +18,12 @@ export class BlogPostsComponent {
   editerForm: FormGroup;
   formOutput: any={};
   showEmojiPicker: boolean = false;
+  isBrowser: boolean;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(private fb: FormBuilder, private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object) {
+
+    this.isBrowser = isPlatformBrowser(this.platformId);
     this.editerForm = this.fb.group({
       title: [''],
       description: [''],
@@ -49,6 +53,7 @@ export class BlogPostsComponent {
   }
 
   onSubmit() {
+    if(this.isBrowser){
     const authUserId = localStorage.getItem('authUserId');
     console.log('authUserId:', authUserId);
     if (!authUserId) {
@@ -77,5 +82,5 @@ export class BlogPostsComponent {
         
       });
   }
-
+}
 }
