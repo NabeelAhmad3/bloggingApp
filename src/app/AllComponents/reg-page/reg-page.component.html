@@ -10,14 +10,55 @@
             </mat-tab-group>
           </div>
           <ng-container *ngIf="currentView === 'login'">
-            <app-log-in></app-log-in>
+            <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
+              <p class="form-title">Login</p>
+              <div class="form-group">
+                <input type="email" formControlName="email" class="form-control" placeholder="Email" />
+                <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                  <span class="text-danger">Invalid email</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <input type="password" formControlName="password" class="form-control" placeholder="Password" />
+                <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                  <span class="text-danger">Password is required</span>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">Login</button>
+            </form>
           </ng-container>
           <ng-container *ngIf="currentView === 'signup'">
-            <app-sign-up></app-sign-up>
+            <form [formGroup]="signUpForm" (ngSubmit)="onSignUpSubmit()">
+              <p class="form-title">Signup</p>
+              <div class="form-group">
+                <input type="text" formControlName="name" class="form-control" placeholder="Name" />
+                <div *ngIf="signUpForm.get('name')?.invalid && signUpForm.get('name')?.touched">
+                  <span class="text-danger">Invalid name</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <input type="email" formControlName="email" class="form-control" placeholder="Email" />
+                <div *ngIf="signUpForm.get('email')?.invalid && signUpForm.get('email')?.touched">
+                  <span class="text-danger">Invalid email</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <input type="tel" formControlName="phone" class="form-control" placeholder="Phone" />
+                <div *ngIf="signUpForm.get('phone')?.invalid && signUpForm.get('phone')?.touched">
+                  <span class="text-danger">Invalid phone</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <input type="password" formControlName="password" class="form-control" placeholder="Password" />
+                <div *ngIf="signUpForm.get('password')?.invalid && signUpForm.get('password')?.touched">
+                  <span class="text-danger">Password is required</span>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" [disabled]="signUpForm.invalid">Signup</button>
+            </form>
           </ng-container>
         </div>
       </div>
     </div>
   </div>
 </div>
-

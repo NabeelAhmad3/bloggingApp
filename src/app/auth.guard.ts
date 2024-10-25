@@ -1,6 +1,9 @@
 import { CanActivateFn } from '@angular/router';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+
+export const showLoginModal = new Subject<void>();
 
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
@@ -9,8 +12,8 @@ export const authGuard: CanActivateFn = (route, state) => {
   if (isLoggedIn) {
     return true; 
   } else {
-    alert('To create post login First')
-    router.navigate(['/home']);
+    showLoginModal.next();
+    router.navigate(['/blog_posts']);
     return false;
   }
 };

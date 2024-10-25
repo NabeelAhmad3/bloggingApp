@@ -21,7 +21,7 @@
     <div *ngIf="isLoggedIn && post.likes > 0" class="post-likes">
       Likes: {{ post.likes }}
     </div>
-    <div *ngIf="isLoggedIn && post.comment.length > 0" class="post-comments p-3">
+    <div *ngIf="post.comment.length > 0" class="post-comments p-3">
       <h6>Comments:</h6>
       <ul>
         <li *ngFor="let comment of post.comment">{{ comment }}</li>

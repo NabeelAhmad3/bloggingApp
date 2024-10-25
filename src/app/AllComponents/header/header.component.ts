@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { RegPageComponent } from "../reg-page/reg-page.component";
 
 @Component({
@@ -15,7 +15,7 @@ export class HeaderComponent implements OnInit {
   isLoggedIn: boolean = false;
   logindata: any = {};
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef,  private router: Router) { }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -34,6 +34,18 @@ export class HeaderComponent implements OnInit {
         localStorage.removeItem('authUserId');
         this.isLoggedIn = false;
         this.cdr.detectChanges(); 
+      }
+    }
+  }
+
+  OpenModal() {
+    if (this.isLoggedIn) {
+      this.router.navigate(['/blog_posts']);
+    } else {
+      const regModal = document.getElementById('regModal');
+      if (regModal) {
+        regModal.classList.add('show');
+        regModal.setAttribute('style', 'display: block');
       }
     }
   }
