@@ -41,9 +41,9 @@ router.get('/blog_view', async (request, response) => {
                 blog_posts.description, 
                 blog_posts.postsid, 
                 blog_posts.image, 
-                COUNT(post_likes.user_id) AS likes,
-                GROUP_CONCAT(comments.comment SEPARATOR ', ') AS comments,
-                (SELECT COUNT(*) FROM post_likes WHERE user_id = ? AND post_id = blog_posts.postsid) > 0 AS hasLiked
+                COUNT(DISTINCT post_likes.user_id) AS likes,                 
+                GROUP_CONCAT(DISTINCT comments.comment SEPARATOR ', ') AS comments,  
+                EXISTS(SELECT * FROM post_likes WHERE user_id = ? AND post_id = blog_posts.postsid) AS hasLiked
             FROM 
                 blog_posts 
             INNER JOIN 
@@ -55,9 +55,10 @@ router.get('/blog_view', async (request, response) => {
             GROUP BY 
                 blog_posts.postsid
         `, [userId]); 
+
         const formattedResults = results.map(post => ({
             ...post,
-            comment: post.comments ? post.comments.split(', ') : [] // Split the concatenated comments into an array
+            comment: post.comments ? post.comments.split(', ') : []
         }));
         response.json(formattedResults);
     } catch (error) {
@@ -65,6 +66,8 @@ router.get('/blog_view', async (request, response) => {
         response.status(500).json({ message: 'Error fetching blog posts', error });
     }
 });
+
+
 
 
 

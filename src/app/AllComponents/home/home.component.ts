@@ -15,7 +15,7 @@ interface BlogPost {
   comment: string[];
   commentInput?: string;
   showCommentInput?: boolean;
-  hasLiked: boolean; 
+  hasLiked: boolean;
 }
 
 @Component({
@@ -67,9 +67,8 @@ export class HomeComponent implements OnInit {
               comment: post.comment || [],
               commentInput: '',
               showCommentInput: false,
-              hasLiked: post.hasLiked 
+              hasLiked: post.hasLiked
             }));
-
             this.cdr.detectChanges();
             resolve();
           },
@@ -91,11 +90,11 @@ export class HomeComponent implements OnInit {
       console.log('Socket connected from frontend');
     });
 
-    this.socket.on('likeUpdate', (updatedPost: { postsid: number; likes: number }) => {
+    this.socket.on('likeUpdate', (updatedPost: { postId: number; likes: number }) => {
       this.updatePostLikes(updatedPost);
     });
 
-    this.socket.on('commentUpdate', (updatedComment: { id: number; comment: string[] }) => {
+    this.socket.on('updateComments', (updatedComment: { postId: number; comments: string[] }) => {
       this.updatePostComments(updatedComment);
     });
 
@@ -105,17 +104,19 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  private updatePostLikes(updatedPost: { postsid: number; likes: number }): void {
-    const post = this.blogPosts.find(p => p.postsid === updatedPost.postsid);
+  private updatePostLikes(updatedPost: { postId: number; likes: number }): void {
+    const post = this.blogPosts.find(p => p.postsid === updatedPost.postId);
     if (post) {
       post.likes = updatedPost.likes;
+      this.cdr.detectChanges();
     }
   }
 
-  private updatePostComments(updatedComment: { id: number; comment: string[] }): void {
-    const post = this.blogPosts.find(p => p.postsid === updatedComment.id);
+  private updatePostComments(updatedComment: { postId: number; comments: string[] }): void {
+    const post = this.blogPosts.find(p => p.postsid === updatedComment.postId);
     if (post) {
-      post.comment = updatedComment.comment;
+      post.comment = updatedComment.comments;
+      this.cdr.detectChanges();
     }
   }
 
@@ -126,7 +127,6 @@ export class HomeComponent implements OnInit {
         console.log('You can only like this post once.');
         return;
       }
-      post.likes += 1;
       post.hasLiked = true;
       this.socket.emit('likePost', postId);
     } else {
@@ -137,7 +137,6 @@ export class HomeComponent implements OnInit {
   commentPost(postId: number): void {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post && post.commentInput) {
-      post.comment = [...(post.comment || []), post.commentInput];
       this.socket.emit('commentPost', { postId, comment: post.commentInput });
       post.commentInput = '';
     } else {
