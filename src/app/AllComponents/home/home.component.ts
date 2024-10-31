@@ -121,6 +121,10 @@ export class HomeComponent implements OnInit {
   }
 
   likePost(postId: number): void {
+    if (!this.isLoggedIn) {
+      this.OpenModal();
+      return;
+    }
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post) {
       if (post.hasLiked) {
@@ -135,6 +139,10 @@ export class HomeComponent implements OnInit {
   }
 
   commentPost(postId: number): void {
+    if (!this.isLoggedIn) {
+      this.OpenModal();
+      return;
+    }
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post && post.commentInput) {
       this.socket.emit('commentPost', { postId, comment: post.commentInput });
@@ -146,9 +154,17 @@ export class HomeComponent implements OnInit {
 
   toggleCommentInput(post: BlogPost): void {
     if (!this.isLoggedIn) {
-      alert('Please log in to comment.');
+      this.OpenModal();
       return;
     }
     post.showCommentInput = !post.showCommentInput;
+  }
+
+  OpenModal() {
+    const regModal = document.getElementById('regModal');
+    if (regModal) {
+      regModal.classList.add('show');
+      regModal.setAttribute('style', 'display: block');
+    }
   }
 }

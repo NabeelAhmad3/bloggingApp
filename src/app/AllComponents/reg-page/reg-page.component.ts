@@ -15,13 +15,12 @@ export class RegPageComponent implements OnInit {
   currentView: string = 'login';
   loginForm!: FormGroup;
   signUpForm!: FormGroup;
-  @Output() closeModal = new EventEmitter<void>();
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email, Validators.minLength(10), Validators.maxLength(30)]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
+      password: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(20)]],
     });
 
     this.signUpForm = this.fb.group({
@@ -64,11 +63,9 @@ export class RegPageComponent implements OnInit {
     const formData = this.signUpForm.value;
     this.http.post('http://localhost:5000/users/register', formData).subscribe({
       next: (response: any) => {
-        console.log(response)
         alert(response.message);
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('authUserId', response.userid);
-        this.closeModal.emit(); 
         window.location.reload();
       },
       error: (error: any) => {

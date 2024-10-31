@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from "./AllComponents/header/header.component";
 import { RegPageComponent } from "./AllComponents/reg-page/reg-page.component";
-import { showLoginModal } from '../app/auth.guard'; 
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -12,17 +11,5 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
-  title = 'Blog-App';
-  isLoginModalVisible = false;
-
-  ngOnInit(): void {
-    showLoginModal.subscribe(() => {
-      this.isLoginModalVisible = true;
-    });
-  }
-
-  closeLoginModal(): void {
-    this.isLoginModalVisible = false;
-  }
+export class AppComponent{
 }

@@ -43,9 +43,9 @@ export class BlogPostsComponent {
   }
 
   addEmoji(event: any) {
-    const descriptionControl = this.editerForm.get('description');
-    const currentText = descriptionControl?.value || '';
-    descriptionControl?.setValue(currentText + event.emoji.native);
+    const descControl = this.editerForm.get('description');
+    const currentText = descControl?.value || '';
+    descControl?.setValue(currentText + event.emoji.native);
   }
 
   toggleEmojiPicker() {
@@ -55,7 +55,6 @@ export class BlogPostsComponent {
   onSubmit() {
     if(this.isBrowser){
     const authUserId = localStorage.getItem('authUserId');
-    console.log('authUserId:', authUserId);
     if (!authUserId) {
       console.error('User is not logged in.');
       return;
