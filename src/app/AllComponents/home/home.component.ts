@@ -124,7 +124,7 @@ export class HomeComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post) {
       if (post.hasLiked) {
-        console.log('You can only like this post once.');
+        alert('You can only like this post once.');
         return;
       }
       post.hasLiked = true;

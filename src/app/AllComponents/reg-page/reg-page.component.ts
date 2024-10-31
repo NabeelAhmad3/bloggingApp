@@ -27,8 +27,8 @@ export class RegPageComponent implements OnInit {
     this.signUpForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
       email: ['', [Validators.required, Validators.email, Validators.minLength(10), Validators.maxLength(30)]],
-      phone: ['', [Validators.required, Validators.min(1000000000), Validators.max(100000000000)]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
+      phone: ['', [Validators.required, Validators.min(10000), Validators.max(100000000000)]],
+      password: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(20)]],
     });
   }
 
@@ -64,6 +64,7 @@ export class RegPageComponent implements OnInit {
     const formData = this.signUpForm.value;
     this.http.post('http://localhost:5000/users/register', formData).subscribe({
       next: (response: any) => {
+        console.log(response)
         alert(response.message);
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('authUserId', response.userid);

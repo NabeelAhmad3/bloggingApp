@@ -15,10 +15,9 @@ router.post('/register', async (request, response) => {
         const sql = 'INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)';
 
         const result = await pool.query(sql, [name, email, phone, hashedPassword]);
-
         const token = jwt.sign({ id: result.insertId }, secretKey, { expiresIn: '1d' });
 
-        response.status(201).json({ message: 'User created successfully', token, userid: result.insertId });
+        response.status(201).json({ message: 'User created successfully',token: token, userid: result[0].insertId });
     } catch (error) {
         console.error('Error during user registration:', error);
         response.status(500).json({ message: 'Error adding user', error: error.message });
@@ -43,8 +42,8 @@ router.post('/login', async (request, response) => {
             return response.status(401).json({ message: 'Invalid password' });
         }
 
-        const token = jwt.sign({ id: user.userid }, secretKey, { expiresIn: '1d' });
-        response.status(200).json({ message: 'Login successful from backend', token, userid: user.userid });
+        const token = jwt.sign({ id: user.userid }, secretKey, { expiresIn: '1h' });
+        response.status(200).json({ message: 'Login successfull', token, userid: user.userid });
 
     } catch (error) {
         console.error('Error during login:', error);
