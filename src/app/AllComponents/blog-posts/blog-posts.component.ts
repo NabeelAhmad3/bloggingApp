@@ -1,4 +1,4 @@
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -6,26 +6,48 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { AngularEditorModule, AngularEditorConfig } from '@kolkov/angular-editor';
 
 @Component({
   selector: 'app-blog-posts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, FloatLabelModule, InputTextareaModule, PickerComponent, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule, ButtonModule, FloatLabelModule, InputTextareaModule, PickerComponent, AngularEditorModule],
   templateUrl: './blog-posts.component.html',
-  styleUrl: './blog-posts.component.css'
+  styleUrls: ['./blog-posts.component.css']
 })
 export class BlogPostsComponent {
   editerForm: FormGroup;
-  formOutput: any={};
+  formOutput: any = {};
   showEmojiPicker: boolean = false;
   isBrowser: boolean;
 
-  constructor(private fb: FormBuilder, private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object) {
+  editorConfig: AngularEditorConfig = {
+    editable: true,
+    spellcheck: true,
+    height: 'auto',
+    minHeight: '200px',
+    maxHeight: '300px',
+    placeholder: 'Enter text here...',
+    defaultFontName: 'Arial',
+    fonts: [
+      { class: 'arial', name: 'Arial' },
+      { class: 'times-new-roman', name: 'Times New Roman' },
+      { class: 'calibri', name: 'Calibri' },
+      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
+    ],
+    toolbarHiddenButtons: [
+      ['insertImage', 'insertVideo']  
+    ]
 
+  };
+
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     this.editerForm = this.fb.group({
-      title: [''],
       description: [''],
       image: ['']
     });
@@ -53,33 +75,28 @@ export class BlogPostsComponent {
   }
 
   onSubmit() {
-    if(this.isBrowser){
-    const authUserId = localStorage.getItem('authUserId');
-    if (!authUserId) {
-      console.error('User is not logged in.');
-      return;
-    }
+    if (this.isBrowser) {
+      const authUserId = localStorage.getItem('authUserId');
+      if (!authUserId) {
+        console.error('User is not logged in.');
+        return;
+      }
 
-    const formData = {
-      title: this.editerForm.get('title')?.value,
-      description: this.editerForm.get('description')?.value,
-      imageBase64: this.editerForm.get('image')?.value,
-      user_id: authUserId
-    };
+      const formData = {
+        description: this.editerForm.get('description')?.value,
+        imageBase64: this.editerForm.get('image')?.value,
+        user_id: authUserId
+      };
 
-    this.http.post('http://localhost:5000/blog_posts/posting', formData)
-      .subscribe({
-        next: () => {
-          this.editerForm.reset();
-        },
-        error: (error) => {
-          console.error('Error creating blog post:', error);
-          if (error.error && error.error.details) {
-            console.error('Server details:', error.error.details);
+      this.http.post('http://localhost:5000/blog_posts/posting', formData)
+        .subscribe({
+          next: () => {
+            this.editerForm.reset();
+          },
+          error: (error) => {
+            console.error('Error creating blog post:', error);
           }
-        }
-        
-      });
+        });
+    }
   }
-}
 }

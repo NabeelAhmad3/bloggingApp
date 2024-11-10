@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient} from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
@@ -8,7 +8,6 @@ interface BlogPost {
   postsid: number;
   name: string;
   created_at: Date;
-  title: string;
   description: string;
   image: string;
   likes: number;
@@ -21,7 +20,7 @@ interface BlogPost {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule],
+  imports: [CommonModule,FormsModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })

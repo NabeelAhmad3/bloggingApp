@@ -3,21 +3,21 @@ const router = express.Router();
 const pool = require('../db');
 
 router.post('/posting', async (request, response) => {
-    const { title, description, imageBase64, created_at, user_id } = request.body;
+    const { description, imageBase64, created_at, user_id } = request.body;
 
-    if (!title || !description || !imageBase64 || !user_id) {
-        return response.status(400).json({ error: 'Title, description, image, and user ID are required' });
+    if (!description || !imageBase64 || !user_id) {
+        return response.status(400).json({ error: 'Description, image, and user ID are required' });
     }
 
     const createdAt = created_at ? created_at : new Date();
 
-    const query = `INSERT INTO blog_posts (title, description, image, created_at, user_id) VALUES (?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO blog_posts (description, image, created_at, user_id) VALUES (?, ?, ?, ?)`;
 
     let connection;
     try {
         connection = await pool.getConnection();
 
-        const [result] = await connection.execute(query, [title, description, imageBase64, createdAt, user_id]);
+        const [result] = await connection.execute(query, [description, imageBase64, createdAt, user_id]);
 
         connection.release();
 
@@ -37,7 +37,6 @@ router.get('/blog_view', async (request, response) => {
             SELECT 
                 users.name,
                 blog_posts.created_at, 
-                blog_posts.title, 
                 blog_posts.description, 
                 blog_posts.postsid, 
                 blog_posts.image, 

@@ -2,31 +2,38 @@
   <div *ngIf="blogPosts.length === 0" class="no-posts">
     No blog posts available.
   </div>
+
   <div *ngFor="let post of blogPosts" class="post-card">
-    <div class="post-image">
-      <img [src]="post.image" alt="Post image">
-    </div>
-    <h2>{{ post.title }}</h2>
-    <p>{{ post.description }}</p>
     <div class="post-info">
       <span>Posted by: {{ post.name }}</span>
       <span>Created at: {{ post.created_at | date }}</span>
     </div>
+
+    <div class="post-image">
+      <img [src]="post.image" alt="Post image" />
+    </div>
+
+    <p [innerHTML]="post.description"></p> <!-- Render description as HTML -->
+
     <div class="post-interactions">
-      <button class="btn btn-primary" (click)="likePost(post.postsid)">
-        Like {{ post.likes }}
+      <button class="btn btn-like" (click)="likePost(post.postsid)">
+        Like <span class="like-count">{{ post.likes }}</span>
       </button>
-      <button class="btn btn-secondary" (click)="toggleCommentInput(post)">
+      <button class="btn btn-comment" (click)="toggleCommentInput(post)">
         Comment
       </button>
+
       <div *ngIf="post.showCommentInput" class="comment-input">
         <input class="form-control" [(ngModel)]="post.commentInput" placeholder="Write a comment..." />
         <button class="btn btn-primary" (click)="commentPost(post.postsid)">Post Comment</button>
       </div>
     </div>
+
     <div class="comments-section">
       <h3>Comments</h3>
-      <p *ngFor="let comment of post.comment">{{ comment }}</p>
+      <div *ngFor="let comment of post.comment" class="comment-item">
+        <p>{{ comment }}</p>
+      </div>
     </div>
   </div>
 </div>

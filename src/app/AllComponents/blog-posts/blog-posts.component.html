@@ -1,37 +1,37 @@
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="post-card p-3 border rounded shadow-sm" style="background-color: #fff;">
-                <h1 class="mb-3">Create Your Blog Post</h1>
-                <form [formGroup]="editerForm" (ngSubmit)="onSubmit()">
-                    <div class="form-group">
-                        <input type="text" formControlName="title" id="postTitle" class="form-control" placeholder="Title" style="border: none;"/>
-                    </div>
-                    <div class="form-group">
-                        <textarea formControlName="description" id="postText" class="form-control" rows="2" placeholder="Write something..." style="border: none;"></textarea>
-                    </div>
-                     <div *ngIf="editerForm.get('image')?.value" class="mt-3">
-                        <div class="image-preview border rounded" style="overflow: hidden;">
-                            <img [src]="editerForm.get('image')?.value" alt="Image Preview" class="img-fluid" style="width: 100%; height: auto;">
-                        </div>
-                    </div>
-                    <div style="display: flex; flex-wrap: wrap;">
-                        <div class="form-group mt-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleEmojiPicker()">😀 Add Emoji</button>
-                            
-                        </div>
-                        <div class="form-group mt-2 ml-3">
-                            <label for="imageUpload" class="form-label btn btn-sm btn-outline-primary">Uploads</label>
-                            <input id="imageUpload" type="file" class="form-control" (change)="editerFormImage($event)" style="display: none;">
-                        </div>
-                    </div>
-                    <div *ngIf="showEmojiPicker" class="emoji-picker-container mt-2">
-                        <emoji-mart (emojiSelect)="addEmoji($event)"></emoji-mart>
-                    </div>
-                   
-                    <button type="submit" class="btn btn-success mt-4">Post</button>
-                </form>
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="post-card p-4 border rounded shadow-lg" style="background-color: #fff;">
+        <h1 class="mb-4 text-center text-primary">Create Your Blog Post</h1>
+        <form [formGroup]="editerForm" (ngSubmit)="onSubmit()">
+          <div class="form-group mb-3">
+            <label for="description" class="fw-bold">Description</label>
+            <angular-editor formControlName="description" [config]="editorConfig"></angular-editor>
+          </div>
+
+          <div *ngIf="editerForm.get('image')?.value" class="mt-3">
+            <div class="image-preview border rounded" style="overflow: hidden;">
+              <img [src]="editerForm.get('image')?.value" alt="Image Preview" class="img-fluid" style="width: 100%; height: auto;">
             </div>
-        </div>
+          </div>
+
+          <div class="form-group mt-3">
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleEmojiPicker()">
+              <i class="bi bi-emoji-smile"></i> Add Emoji
+            </button>
+            <label for="imageUpload" class="form-label mt-2 ms-2 btn btn-sm btn-outline-primary">Upload Image</label>
+            <input id="imageUpload" type="file" (change)="editerFormImage($event)" style="display: none;">
+          </div>
+
+          <div *ngIf="showEmojiPicker" class="emoji-picker-container mt-2">
+            <emoji-mart (emojiSelect)="addEmoji($event)"></emoji-mart>
+          </div>
+
+          <div class="form-group mt-4">
+            <button type="submit" class="btn btn-success w-100">Post</button>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>

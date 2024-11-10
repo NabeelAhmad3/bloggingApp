@@ -1,12 +1,12 @@
 .post-card {
   background-color: #f5f6fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .image-preview {
-  margin-top: 15px;
-  border-radius: 8px;
+  margin-top: 20px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -17,18 +17,48 @@
 .btn-outline-primary {
   color: #007bff;
   border-color: #007bff;
+  font-weight: 400;
 }
 
 .btn-outline-primary:hover {
   background-color: #007bff;
   color: white;
+  transform: scale(1.05);
 }
 
 .btn-success {
   background-color: #28a745;
   border: none;
+  font-weight: 600;
 }
 
 .btn-success:hover {
   background-color: #218838;
+  transform: scale(1.05);
+}
+
+.emoji-picker-container {
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  font-size: 28px;
+  color: #333;
+  font-weight: 700;
+}
+
+label {
+  font-weight: 600;
+  color: #555;
+}
+
+button {
+  transition: transform 0.2s ease-in-out;
+}
+
+button:focus {
+  outline: none;
 }

@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient} from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-reg-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, MatTabsModule],
+  imports: [CommonModule, ReactiveFormsModule, MatTabsModule],
   templateUrl: './reg-page.component.html',
   styleUrls: ['./reg-page.component.css']
 })
