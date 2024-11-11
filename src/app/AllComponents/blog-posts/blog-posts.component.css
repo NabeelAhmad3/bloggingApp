@@ -55,10 +55,3 @@ label {
   color: #555;
 }
 
-button {
-  transition: transform 0.2s ease-in-out;
-}
-
-button:focus {
-  outline: none;
-}

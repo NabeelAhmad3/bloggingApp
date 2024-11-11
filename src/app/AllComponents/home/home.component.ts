@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
@@ -20,7 +20,7 @@ interface BlogPost {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -30,11 +30,7 @@ export class HomeComponent implements OnInit {
   isLoggedIn: boolean = false;
   logindata: any = {};
 
-  constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) {
     if (isPlatformBrowser(this.platformId)) {
       this.logindata = {
         token: localStorage.getItem('authToken'),
@@ -82,25 +78,17 @@ export class HomeComponent implements OnInit {
   private setupSocketConnection(): void {
     const userId = this.logindata.userid;
     this.socket = io('http://localhost:5000', {
-      query: { userId }
+      query: { userId } //query  is key value pair to send additional info from frontend to server
     });
 
-    this.socket.on('connect', () => {
-      console.log('Socket connected from frontend');
-    });
-
-    this.socket.on('likeUpdate', (updatedPost: { postId: number; likes: number }) => {
-      this.updatePostLikes(updatedPost);
+    this.socket.on('likeUpdate', (updatedlike: { postId: number; likes: number }) => {
+      this.updatePostLikes(updatedlike);
     });
 
     this.socket.on('updateComments', (updatedComment: { postId: number; comments: string[] }) => {
       this.updatePostComments(updatedComment);
     });
 
-    this.socket.on('error', (errorMessage: string) => {
-      console.error('Server error:', errorMessage);
-      alert(errorMessage);
-    });
   }
 
   private updatePostLikes(updatedPost: { postId: number; likes: number }): void {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient} from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -63,7 +63,6 @@ export class RegPageComponent implements OnInit {
     const formData = this.signUpForm.value;
     this.http.post('http://localhost:5000/users/register', formData).subscribe({
       next: (response: any) => {
-        alert(response.message);
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('authUserId', response.userid);
         window.location.reload();
@@ -72,5 +71,13 @@ export class RegPageComponent implements OnInit {
         alert(error.error.message || 'Error adding user');
       },
     });
+  }
+
+  closeModal(){
+    const regModal = document.getElementById('regModal');
+    if (regModal) {
+      regModal.classList.remove('show');
+      regModal.setAttribute('style', 'display: none');
+    }
   }
 }

@@ -2,8 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AngularEditorModule, AngularEditorConfig } from '@kolkov/angular-editor';
@@ -11,7 +9,7 @@ import { AngularEditorModule, AngularEditorConfig } from '@kolkov/angular-editor
 @Component({
   selector: 'app-blog-posts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, FloatLabelModule, InputTextareaModule, PickerComponent, AngularEditorModule],
+  imports: [CommonModule, ReactiveFormsModule, ButtonModule, PickerComponent, AngularEditorModule],
   templateUrl: './blog-posts.component.html',
   styleUrls: ['./blog-posts.component.css']
 })
@@ -41,11 +39,7 @@ export class BlogPostsComponent {
 
   };
 
-  constructor(
-    private fb: FormBuilder,
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {
+  constructor(private fb: FormBuilder,private http: HttpClient,@Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     this.editerForm = this.fb.group({
       description: [''],
