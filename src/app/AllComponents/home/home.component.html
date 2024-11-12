@@ -13,7 +13,7 @@
       <img [src]="post.image" alt="Post image" />
     </div>
 
-    <p [innerHTML]="post.description"></p> <!-- Render description as HTML -->
+    <p [innerHTML]="post.description"></p> <!-- to show text editor edited text correctly mean in text form  -->
 
     <div class="post-interactions">
       <button class="btn btn-like" (click)="likePost(post.postsid)">
@@ -22,17 +22,14 @@
       <button class="btn btn-comment" (click)="toggleCommentInput(post)">
         Comment
       </button>
-
-      <div *ngIf="post.showCommentInput" class="comment-input">
+    </div>
+    <div *ngIf="post.showCommentInput" class="comments-section">
+      <div class="comment-input">
         <input class="form-control" [(ngModel)]="post.commentInput" placeholder="Write a comment..." />
         <button class="btn btn-primary" (click)="commentPost(post.postsid)">Post Comment</button>
       </div>
-    </div>
-
-    <div class="comments-section">
-      <h3>Comments</h3>
-      <div *ngFor="let comment of post.comment" class="comment-item">
-        <p>{{ comment }}</p>
+      <div *ngFor="let comment of post.comment, let i=index" class="comment-item">
+        <p>{{i+1}}.{{ comment }}</p>
       </div>
     </div>
   </div>

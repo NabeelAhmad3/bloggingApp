@@ -22,6 +22,7 @@ router.post('/posting', async (request, response) => {
         connection.release();
 
         response.status(201).json({ id: result.insertId, message: 'Blog post created successfully' });
+
     } catch (error) {
         console.error('Error inserting blog post:', error);
 
@@ -31,7 +32,7 @@ router.post('/posting', async (request, response) => {
     }
 });
 router.get('/blog_view', async (request, response) => {
-    const userId = request.query.userId; 
+    const userId = request.query.userId;
     try {
         const [results] = await pool.query(`
             SELECT 
@@ -53,9 +54,9 @@ router.get('/blog_view', async (request, response) => {
                 post_likes ON blog_posts.postsid = post_likes.post_id
             GROUP BY 
                 blog_posts.postsid
-        `, [userId]); 
+        `, [userId]);
 
-        const formattedResults = results.map(post => ({
+        const formattedResults = results.map(post => ({ // map array of resluts and make new array to modified old array mean comments modified
             ...post,
             comment: post.comments ? post.comments.split(', ') : []
         }));

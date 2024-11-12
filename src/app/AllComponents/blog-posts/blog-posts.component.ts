@@ -23,7 +23,7 @@ export class BlogPostsComponent {
     editable: true,
     spellcheck: true,
     height: 'auto',
-    minHeight: '200px',
+    minHeight: '100px',
     maxHeight: '300px',
     placeholder: 'Enter text here...',
     defaultFontName: 'Arial',
