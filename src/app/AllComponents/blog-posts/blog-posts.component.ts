@@ -34,12 +34,12 @@ export class BlogPostsComponent {
       { class: 'comic-sans-ms', name: 'Comic Sans MS' }
     ],
     toolbarHiddenButtons: [
-      ['insertImage', 'insertVideo']  
+      ['insertImage', 'insertVideo']
     ]
 
   };
 
-  constructor(private fb: FormBuilder,private http: HttpClient,@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(private fb: FormBuilder, private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     this.editerForm = this.fb.group({
       description: [''],
@@ -52,7 +52,7 @@ export class BlogPostsComponent {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.editerForm.patchValue({ image: e.target.result });
+        this.editerForm.patchValue({ image: e.target.result }); //patchValue is method in FormGroup that allows to update specific fields in a form without affecting others.
       };
       reader.readAsDataURL(file);
     }

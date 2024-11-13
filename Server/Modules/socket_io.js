@@ -15,10 +15,6 @@ function setupSocketIO(server) {
 
         socket.on('likePost', async (postId) => {
             try {
-                if (!userId) {
-                    throw new Error('User ID is required for liking posts');
-                }
-        
                 await pool.query(
                     'INSERT INTO post_likes (user_id, post_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE id=id',
                     [userId, postId]

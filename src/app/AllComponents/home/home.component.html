@@ -13,14 +13,14 @@
       <img [src]="post.image" alt="Post image" />
     </div>
 
-    <p [innerHTML]="post.description"></p> <!-- to show text editor edited text correctly mean in text form  -->
+    <p [innerHTML]="post.description"></p> 
 
-    <div class="post-interactions">
+    <div class="post-interactions" >
       <button class="btn btn-like" (click)="likePost(post.postsid)">
         Like <span class="like-count">{{ post.likes }}</span>
       </button>
       <button class="btn btn-comment" (click)="toggleCommentInput(post)">
-        Comment
+        Comments
       </button>
     </div>
     <div *ngIf="post.showCommentInput" class="comments-section">

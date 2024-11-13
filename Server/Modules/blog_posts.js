@@ -56,7 +56,7 @@ router.get('/blog_view', async (request, response) => {
                 blog_posts.postsid
         `, [userId]);
 
-        const formattedResults = results.map(post => ({ // map array of resluts and make new array to modified old array mean comments modified
+        const formattedResults = results.map(post => ({ 
             ...post,
             comment: post.comments ? post.comments.split(', ') : []
         }));
