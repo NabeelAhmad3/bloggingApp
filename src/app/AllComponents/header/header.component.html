@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm ">
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
   <div class="container-fluid">
     <a class="navbar-brand text-primary" [routerLink]="['/home']">
       FictionFlare
@@ -8,19 +8,24 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ms-3 mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" (click)="OpenModal()" href="javascript:void(0)">
-            Create Posts
-          </a>
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item fw-bold">
+          <a class="nav-link " [routerLink]="['/blog_posts']">Create Blog </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" *ngIf="isLoggedIn" (click)="logout()" href="">
-            Logout
+        <li class="nav-item fw-bold">
+          <a class="nav-link " [routerLink]="['/my_blogs']">My Blogs</a>
+        </li>
+        <li class="nav-item" *ngIf="!isLoggedIn">
+          <a class="nav-link" (click)="OpenModal()">Login</a>
+        </li>
+        <li class="nav-item" *ngIf="isLoggedIn">
+          <a class="nav-link login-link" href="" data-bs-toggle="modal" data-bs-target="#profileModal">
+            <img src="assets/favicon.ico" alt="img" class="profile-img" />
           </a>
         </li>
       </ul>
     </div>
   </div>
 </nav>
-<app-reg-page/>
+<app-reg-page />
+<app-profile-modal />

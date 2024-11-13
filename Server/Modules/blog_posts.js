@@ -54,9 +54,11 @@ router.get('/blog_view', async (request, response) => {
                 post_likes ON blog_posts.postsid = post_likes.post_id
             GROUP BY 
                 blog_posts.postsid
+            ORDER BY 
+                blog_posts.created_at DESC
         `, [userId]);
 
-        const formattedResults = results.map(post => ({ 
+        const formattedResults = results.map(post => ({
             ...post,
             comment: post.comments ? post.comments.split(', ') : []
         }));
@@ -66,9 +68,5 @@ router.get('/blog_view', async (request, response) => {
         response.status(500).json({ message: 'Error fetching blog posts', error });
     }
 });
-
-
-
-
 
 module.exports = router;

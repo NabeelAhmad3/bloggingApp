@@ -19,6 +19,8 @@ export class BlogPostsComponent {
   showEmojiPicker: boolean = false;
   isBrowser: boolean;
 
+  successMessage: boolean = false;
+
   editorConfig: AngularEditorConfig = {
     editable: true,
     spellcheck: true,
@@ -85,6 +87,10 @@ export class BlogPostsComponent {
       this.http.post('http://localhost:5000/blog_posts/posting', formData)
         .subscribe({
           next: () => {
+            this.successMessage = true;
+            setTimeout(() => {
+              this.successMessage = false;
+            }, 3000);
             this.editerForm.reset();
           },
           error: (error) => {

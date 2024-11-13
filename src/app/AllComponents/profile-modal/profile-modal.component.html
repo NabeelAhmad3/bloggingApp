@@ -1,0 +1,21 @@
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <ul class="list-group mb-3">
+                    <li class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <span><strong>Name:</strong> {{ user.name }}</span><br>
+                            <span><strong>Email:</strong> {{ user.email }}</span>
+                        </div>
+                    </li>
+                </ul>
+                <ul class="list-group mb-3">
+                    <li class="d-flex align-items-center text-container mb-2" *ngIf="isLoggedIn">
+                        <button class="btn btn-danger w-100" (click)="logout()">LogOut</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

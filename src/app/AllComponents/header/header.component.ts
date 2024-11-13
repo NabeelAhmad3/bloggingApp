@@ -3,11 +3,12 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { RegPageComponent } from "../reg-page/reg-page.component";
+import { ProfileModalComponent } from "../profile-modal/profile-modal.component";
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RegPageComponent],
+  imports: [CommonModule, RouterLink, RegPageComponent, ProfileModalComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -15,7 +16,7 @@ export class HeaderComponent implements OnInit {
   isLoggedIn: boolean = false;
   logindata: any = {};
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef,  private router: Router) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -26,21 +27,9 @@ export class HeaderComponent implements OnInit {
       this.isLoggedIn = !!this.logindata.token;
     }
   }
-
-  logout() {
-    if (confirm('Are you sure you want to logout?')) {
-      if (isPlatformBrowser(this.platformId)) {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('authUserId');
-        this.isLoggedIn = false;
-        this.cdr.detectChanges(); 
-      }
-    }
-  }
-
   OpenModal() {
     if (this.isLoggedIn) {
-      this.router.navigate(['/blog_posts']);
+      return ;
     } else {
       const regModal = document.getElementById('regModal');
       if (regModal) {

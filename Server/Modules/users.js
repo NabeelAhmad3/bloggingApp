@@ -51,4 +51,15 @@ router.post('/login', async (request, response) => {
     }
 });
 
+router.get('/userDetails/:userid', (request, response) => {
+    const { userid } = request.params;
+    const sql = `SELECT name, email FROM users WHERE userid = ?`; 
+    pool.query(sql, [userid], (err, result) => {
+        if (err) {
+            return response.status(500).send({ error: 'Database query failed' });
+        }
+        response.status(200).send(result); 
+    });
+});
+
 module.exports = router;
