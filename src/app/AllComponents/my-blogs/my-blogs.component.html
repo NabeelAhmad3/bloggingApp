@@ -1,1 +1,34 @@
-<p>my-blogs works!</p>
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-3 post-card" *ngFor="let post of posts">
+        <div class="card-header">
+          <span>Posted by: {{ post.name }}</span>
+          <span class="float-end">Created at: {{ post.created_at | date }}</span>
+        </div>
+        <div class="card-body">
+          <img [src]="post.image" alt="Post image" class="img-fluid mb-3">
+          <p [innerHTML]="post.description"></p>
+
+          <button class="btn btn-success" (click)="likePost(post.postsid)">
+            Like <span class="fw-bold">{{ post.likes }}</span>
+          </button>
+
+          <button class="btn btn-primary ms-3" (click)="toggleCommentInput(post)">
+            Comments
+          </button>
+          <div *ngIf="post.showCommentInput" class="comments-section">
+            <div class="comment-input">
+              <input class="form-control" [(ngModel)]="post.commentInput" placeholder="Write a comment..." />
+              <button class="btn btn-primary" (click)="commentPost(post.postsid)">Post Comment</button>
+            </div>
+            <div *ngFor="let comment of post.comment, let i=index" class="comment-item">
+              <p>{{i+1}}.{{ comment }}</p>
+            </div>
+          </div>
+          <div class="text-center" *ngIf="posts.length === 0">
+            <h2>No Blog Posts Available.</h2>
+          </div>
+        </div>
+      </div>
+    </div>

@@ -13,16 +13,13 @@
       <img [src]="post.image" alt="Post image" />
     </div>
 
-    <p [innerHTML]="post.description"></p> 
-
-    <div class="post-interactions" >
-      <button class="btn btn-like" (click)="likePost(post.postsid)">
-        Like <span class="like-count">{{ post.likes }}</span>
-      </button>
-      <button class="btn btn-comment" (click)="toggleCommentInput(post)">
-        Comments
-      </button>
-    </div>
+    <p [innerHTML]="post.description"></p>
+    <button class="btn btn-success" (click)="likePost(post.postsid)">
+      Like <span class="fw-bold">{{ post.likes }}</span>
+    </button>
+    <button class="btn btn-primary ms-3" (click)="toggleCommentInput(post)">
+      Comments
+    </button>
     <div *ngIf="post.showCommentInput" class="comments-section">
       <div class="comment-input">
         <input class="form-control" [(ngModel)]="post.commentInput" placeholder="Write a comment..." />
