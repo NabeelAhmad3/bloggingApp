@@ -7,7 +7,7 @@ import { io, Socket } from 'socket.io-client';
 @Component({
   selector: 'app-my-blogs',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './my-blogs.component.html',
   styleUrls: ['./my-blogs.component.css']
 })
@@ -89,6 +89,18 @@ export class MyBlogsComponent implements OnInit {
       post.commentInput = '';
     } else {
       console.error('Post ID or comment input is missing or invalid');
+    }
+  }
+  deleteComment(postId: number, comment: string, index: number): void {
+    if (!this.userId) {
+      alert('Please login to delete a comment.');
+      return;
+    }
+
+    if (confirm('Are you sure you want to delete this comment?')) {
+      if (this.socket) {
+        this.socket.emit('deleteComment', { postId, comment });
+      }
     }
   }
 

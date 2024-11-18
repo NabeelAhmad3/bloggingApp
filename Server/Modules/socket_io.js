@@ -19,7 +19,7 @@ function setupSocketIO(server) {
                     'INSERT INTO post_likes (user_id, post_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE id=id',
                     [userId, postId]
                 );
-        
+
                 const [rows] = await pool.query('SELECT COUNT(*) AS totalLikes FROM post_likes WHERE post_id = ?', [postId]);
                 const totalLikes = rows[0]?.totalLikes || 0;
                 io.emit('likeUpdate', { postId, likes: totalLikes });
@@ -28,16 +28,36 @@ function setupSocketIO(server) {
                 socket.emit('error', 'Failed to update likes');
             }
         });
-        
+
 
         socket.on('commentPost', async ({ postId, comment }) => {
             try {
                 await pool.query('INSERT INTO comments (post_id, comment) VALUES (?, ?)', [postId, comment]);
-                const comments = await getCommentsForPost(postId); 
+                const comments = await getCommentsForPost(postId);
                 io.emit('updateComments', { postId, comments });
             } catch (error) {
                 console.error('Error posting comment:', error);
                 socket.emit('error', 'Failed to post comment');
+            }
+        });
+        socket.on('deleteComment', async ({ postId, comment }) => {
+            try {
+                const [commentExists] = await pool.query(
+                    'SELECT * FROM comments WHERE post_id = ? AND comment = ?',
+                    [postId, comment]
+                );
+
+                if (commentExists.length > 0) {
+                    await pool.query('DELETE FROM comments WHERE post_id = ? AND comment = ?', [postId, comment]);
+
+                    const comments = await getCommentsForPost(postId);
+                    io.emit('updateComments', { postId, comments });
+                } else {
+                    socket.emit('error', 'Comment not found or you do not have permission to delete it.');
+                }
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                socket.emit('error', 'Failed to delete comment');
             }
         });
 
