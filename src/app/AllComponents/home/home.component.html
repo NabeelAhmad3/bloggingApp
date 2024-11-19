@@ -25,9 +25,10 @@
         <input class="form-control" [(ngModel)]="post.commentInput" placeholder="Write a comment..." />
         <button class="btn btn-primary" (click)="commentPost(post.postsid)">Post Comment</button>
       </div>
-      <div *ngFor="let comment of post.comment, let i=index" class="comment-item">
-        <p>{{i+1}}.{{ comment }}</p>
+      <div *ngFor="let comment of post.comment">
+        <div>User ID: {{ comment.userId }} <span></span>{{ comment.comment }}</div>
       </div>
+      
     </div>
   </div>
 </div>

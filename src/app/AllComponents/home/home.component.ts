@@ -11,7 +11,7 @@ interface BlogPost {
   description: string;
   image: string;
   likes: number;
-  comment: string[];
+  comment: { id: number, userId: number, comment: string }[];
   commentInput?: string;
   showCommentInput?: boolean;
   hasLiked: boolean;
@@ -85,10 +85,9 @@ export class HomeComponent implements OnInit {
       this.updatePostLikes(updatedlike);
     });
 
-    this.socket.on('updateComments', (updatedComment: { postId: number; comments: string[] }) => {
+    this.socket.on('updateComments', (updatedComment: { postId: number; comments: { id: number, userId: number, comment: string }[] }) => {
       this.updatePostComments(updatedComment);
     });
-
   }
 
   private updatePostLikes(updatedPost: { postId: number; likes: number }): void {
@@ -99,7 +98,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private updatePostComments(updatedComment: { postId: number; comments: string[] }): void {
+  private updatePostComments(updatedComment: { postId: number; comments: { id: number, userId: number, comment: string }[] }): void {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.postId);
     if (post) {
       post.comment = updatedComment.comments;
