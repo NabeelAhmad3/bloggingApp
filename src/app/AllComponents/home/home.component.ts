@@ -1,3 +1,4 @@
+// home.component.ts
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
@@ -11,10 +12,18 @@ interface BlogPost {
   description: string;
   image: string;
   likes: number;
-  comment: { id: number, userId: number, comment: string }[];
+  comment: Comment[];
   commentInput?: string;
   showCommentInput?: boolean;
   hasLiked: boolean;
+}
+
+interface Comment {
+  id: number;
+  userId: number;
+  comment: string;
+  editText: string;
+  editing: boolean; 
 }
 
 @Component({
@@ -78,14 +87,14 @@ export class HomeComponent implements OnInit {
   private setupSocketConnection(): void {
     const userId = this.logindata.userid;
     this.socket = io('http://localhost:5000', {
-      query: { userId } //query  is key value pair to send additional info from frontend to server
+      query: { userId }
     });
 
     this.socket.on('likeUpdate', (updatedlike: { postId: number; likes: number }) => {
       this.updatePostLikes(updatedlike);
     });
 
-    this.socket.on('updateComments', (updatedComment: { postId: number; comments: { id: number, userId: number, comment: string }[] }) => {
+    this.socket.on('updateComments', (updatedComment: { postId: number; comments: Comment[] }) => {
       this.updatePostComments(updatedComment);
     });
   }
@@ -98,7 +107,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private updatePostComments(updatedComment: { postId: number; comments: { id: number, userId: number, comment: string }[] }): void {
+  private updatePostComments(updatedComment: { postId: number; comments: Comment[] }): void {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.postId);
     if (post) {
       post.comment = updatedComment.comments;
@@ -145,6 +154,7 @@ export class HomeComponent implements OnInit {
     }
     post.showCommentInput = !post.showCommentInput;
   }
+
   deleteComment(postId: number, commentId: number): void {
     if (!this.isLoggedIn) {
       this.OpenModal();
@@ -157,6 +167,38 @@ export class HomeComponent implements OnInit {
       console.error('Socket connection is not established.');
     }
   }
+
+  editComment(comment: any): void {
+    comment.editing = true;
+    comment.editText = comment.comment;
+  }
+
+  saveEditComment(postId: number, comment: { id: number, userId: number, comment: string, editText: string }) {
+    if (!this.isLoggedIn) {
+      this.OpenModal();
+      return;
+    }
+
+    const newCommentText = comment.editText || '';  
+    if (newCommentText && newCommentText !== comment.comment) {
+      if (this.socket) {
+        this.socket.emit('editComment', { 
+          postId, 
+          commentId: comment.id, 
+          newCommentText, 
+          userId: this.logindata.userid 
+        });
+        
+        comment.comment = newCommentText; 
+        // comment.editing = false;
+      } else {
+        console.error('Socket connection is not established.');
+      }
+    } else {
+      console.error('No changes detected or invalid input');
+    }
+}
+
 
   OpenModal() {
     const regModal = document.getElementById('regModal');

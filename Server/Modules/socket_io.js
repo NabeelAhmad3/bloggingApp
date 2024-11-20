@@ -39,6 +39,26 @@ function setupSocketIO(server) {
                 socket.emit('error', 'Failed to post comment');
             }
         });
+
+        socket.on('editComment', async ({ postId, commentId, newCommentText, userId }) => {
+            if (!commentId) {
+              console.error('Comment ID is missing or undefined');
+              socket.emit('error', 'Invalid comment ID');
+              return;
+            }
+
+            const [comment] = await pool.query('SELECT user_id FROM comments WHERE id = ? AND user_id = ?', [commentId, userId]);
+          
+            if (!comment || comment.length === 0) {
+              console.error('No comment found for this user');
+              socket.emit('error', 'Unauthorized action or comment not found');
+              return;
+            }
+            await pool.query('UPDATE comments SET comment = ? WHERE id = ?', [newCommentText, commentId]);
+            const [comments] = await pool.query('SELECT * FROM comments WHERE post_id = ?', [postId]);
+            io.emit('updateComments', { postId, comments });
+          });
+          
         socket.on('deleteComment', async ({ postId, commentId }) => {
             try {
                 const [result] = await pool.query(
