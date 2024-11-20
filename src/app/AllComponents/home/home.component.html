@@ -26,7 +26,13 @@
         <button class="btn btn-primary" (click)="commentPost(post.postsid)">Post Comment</button>
       </div>
       <div *ngFor="let comment of post.comment">
-        <div>User ID: {{ comment.userId }} <span></span>{{ comment.comment }}</div>
+        <div class="comment">
+          <span>{{ comment.comment }}</span>
+          <button *ngIf="comment.userId == logindata.userid" class="btn btn-danger btn-sm ms-2"
+            (click)="deleteComment(post.postsid, comment.id)">
+            Delete
+          </button>
+        </div>
       </div>
       
     </div>

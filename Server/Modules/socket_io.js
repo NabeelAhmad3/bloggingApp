@@ -39,7 +39,24 @@ function setupSocketIO(server) {
                 socket.emit('error', 'Failed to post comment');
             }
         });
+        socket.on('deleteComment', async ({ postId, commentId }) => {
+            try {
+                const [result] = await pool.query(
+                    'DELETE FROM comments WHERE id = ? AND user_id = ? AND post_id = ?',
+                    [commentId, userId, postId]
+                );
 
+                if (result.affectedRows > 0) {
+                    const comments = await getCommentsForPost(postId);
+                    io.emit('updateComments', { postId, comments });
+                } else {
+                    socket.emit('error', 'Failed to delete comment or unauthorized action.');
+                }
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                socket.emit('error', 'Failed to delete comment');
+            }
+        });
         async function getCommentsForPost(postId) {
             const [comments] = await pool.query('SELECT id, user_id, comment FROM comments WHERE post_id = ?', [postId]);
             return comments.map(row => ({ id: row.id, userId: row.user_id, comment: row.comment }));

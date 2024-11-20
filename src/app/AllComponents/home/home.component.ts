@@ -145,6 +145,18 @@ export class HomeComponent implements OnInit {
     }
     post.showCommentInput = !post.showCommentInput;
   }
+  deleteComment(postId: number, commentId: number): void {
+    if (!this.isLoggedIn) {
+      this.OpenModal();
+      return;
+    }
+
+    if (this.socket) {
+      this.socket.emit('deleteComment', { postId, commentId });
+    } else {
+      console.error('Socket connection is not established.');
+    }
+  }
 
   OpenModal() {
     const regModal = document.getElementById('regModal');
