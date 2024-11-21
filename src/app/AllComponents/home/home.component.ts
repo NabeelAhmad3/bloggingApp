@@ -1,4 +1,3 @@
-// home.component.ts
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
@@ -6,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
 
 export interface BlogPost {
+  user_id: number;
   postsid: number;
   name: string;
   created_at: Date;
@@ -161,20 +161,11 @@ export class HomeComponent implements OnInit {
   }
 
   toggleCommentInput(post: BlogPost): void {
-    if (!this.isLoggedIn) {
-      this.OpenModal();
-      return;
-    }
     post.showCommentInput = !post.showCommentInput;
   }
 
   deleteComment(postId: number, commentId: number): void {
-    if (!this.isLoggedIn) {
-      this.OpenModal();
-      return;
-    }
-
-    const userId = parseInt(this.logindata.userid, 10); // Ensure userId is a number
+    const userId = parseInt(this.logindata.userid, 10);
 
     if (this.socket) {
       this.socket.emit('deleteComment', commentId, postId, userId);
@@ -183,12 +174,12 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  editComment(comment: any): void {
+  editComment(comment: Comment): void {
     comment.editing = true;
     comment.editText = comment.comment;
   }
 
-  saveEditComment(postId: number, comment: { id: number, userId: number, comment: string, editText: string }) {
+  saveEditComment(postId: number, comment: Comment): void {
     if (!this.isLoggedIn) {
       this.OpenModal();
       return;
@@ -205,6 +196,7 @@ export class HomeComponent implements OnInit {
         });
 
         comment.comment = newCommentText;
+        comment.editing = false;
       } else {
         console.error('Socket connection is not established.');
       }
@@ -220,4 +212,5 @@ export class HomeComponent implements OnInit {
       regModal.setAttribute('style', 'display: block');
     }
   }
+  
 }

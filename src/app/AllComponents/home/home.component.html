@@ -33,7 +33,7 @@
             (click)="editComment(comment)">
             Edit
           </button>
-          <button *ngIf="comment.userId == logindata.userid" class="btn btn-danger btn-sm ms-2"
+          <button *ngIf="comment.userId == logindata.userid && !comment.editing" class="btn btn-danger btn-sm ms-2"
             (click)="deleteComment(post.postsid, comment.id)">
             Delete
           </button>

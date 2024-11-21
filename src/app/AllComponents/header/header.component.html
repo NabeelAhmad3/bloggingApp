@@ -10,10 +10,10 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <li class="nav-item fw-bold">
-          <a class="nav-link " [routerLink]="['/blog_posts']">Create Blog </a>
+          <a class="nav-link " [routerLink]="['/blog_posts']" (click)="OpenModal()" href="javascript:void(0)">Create Blog </a>
         </li>
         <li class="nav-item fw-bold">
-          <a class="nav-link " [routerLink]="['/my_blogs']">My Blogs</a>
+          <a class="nav-link " [routerLink]="['/my_blogs']" (click)="OpenModal()" href="javascript:void(0)">My Blogs</a>
         </li>
         <li class="nav-item" *ngIf="!isLoggedIn">
           <a class="nav-link" (click)="OpenModal()">Login</a>

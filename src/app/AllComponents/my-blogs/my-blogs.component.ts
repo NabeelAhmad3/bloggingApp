@@ -110,10 +110,6 @@ export class MyBlogsComponent implements OnInit {
   }
 
   likePost(postId: number): void {
-    if (!this.isLoggedIn) {
-      this.OpenModal();
-      return;
-    }
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post) {
       if (post.hasLiked) {
@@ -128,10 +124,6 @@ export class MyBlogsComponent implements OnInit {
   }
 
   commentPost(postId: number): void {
-    if (!this.isLoggedIn) {
-      this.OpenModal();
-      return;
-    }
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post && post.commentInput) {
       this.socket.emit('commentPost', { postId, comment: post.commentInput });
@@ -142,27 +134,25 @@ export class MyBlogsComponent implements OnInit {
   }
 
   toggleCommentInput(post: BlogPost): void {
-    if (!this.isLoggedIn) {
-      this.OpenModal();
-      return;
-    }
     post.showCommentInput = !post.showCommentInput;
   }
 
-  deleteComment(postId: number, commentId: number): void {
-    if (!this.isLoggedIn) {
-      this.OpenModal();
-      return;
-    }
+deleteComment(postId: number, commentId: number): void {
 
-    const userId = parseInt(this.logindata.userid, 10); // Ensure userId is a number
-
-    if (this.socket) {
-      this.socket.emit('deleteComment', commentId, postId, userId);
+    const userId = parseInt(this.logindata.userid, 10); 
+    const post = this.blogPosts.find(p => p.postsid === postId);
+    if (post && post.user_id === userId) {
+        this.socket?.emit('deleteComment', commentId, postId, userId);
     } else {
-      console.error('Socket connection is not established.');
+        const comment = post?.comment.find(c => c.id === commentId);
+        if (comment && comment.userId === userId) {
+            this.socket?.emit('deleteComment', commentId, postId, userId);
+        } else {
+            alert('You are not authorized to delete this comment');
+        }
     }
-  }
+}
+
 
   editComment(comment: any): void {
     comment.editing = true;
@@ -170,11 +160,6 @@ export class MyBlogsComponent implements OnInit {
   }
 
   saveEditComment(postId: number, comment: { id: number, userId: number, comment: string, editText: string }) {
-    if (!this.isLoggedIn) {
-      this.OpenModal();
-      return;
-    }
-
     const newCommentText = comment.editText || '';  
     if (newCommentText && newCommentText !== comment.comment) {
       if (this.socket) {
@@ -194,11 +179,5 @@ export class MyBlogsComponent implements OnInit {
     }
   }
 
-  OpenModal() {
-    const regModal = document.getElementById('regModal');
-    if (regModal) {
-      regModal.classList.add('show');
-      regModal.setAttribute('style', 'display: block');
-    }
-  }
+
 }
