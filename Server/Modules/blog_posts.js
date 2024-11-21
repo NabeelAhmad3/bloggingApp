@@ -35,11 +35,15 @@ router.get('/blog_view', async (request, response) => {
   const userId = request.query.userId;
   try {
     const [results] = await pool.query(`
-      SELECT users.name, blog_posts.created_at, blog_posts.description, blog_posts.postsid, blog_posts.image, 
-             COUNT(DISTINCT post_likes.user_id) AS likes, 
-             GROUP_CONCAT(DISTINCT comments.comment SEPARATOR ', ') AS comments,
-             GROUP_CONCAT(DISTINCT comments.user_id SEPARATOR ', ') AS comment_user_ids,
-             EXISTS(SELECT * FROM post_likes WHERE user_id = ? AND post_id = blog_posts.postsid) AS hasLiked
+      SELECT users.name, 
+       blog_posts.created_at, 
+       blog_posts.description, 
+       blog_posts.postsid, 
+       blog_posts.image, 
+       COUNT(DISTINCT post_likes.user_id) AS likes, 
+       GROUP_CONCAT(DISTINCT comments.comment SEPARATOR ', ') AS comments,
+       GROUP_CONCAT(DISTINCT comments.user_id SEPARATOR ', ') AS comment_user_ids,
+       EXISTS(SELECT * FROM post_likes WHERE user_id = ? AND post_id = blog_posts.postsid) AS hasLiked
       FROM blog_posts 
       INNER JOIN users ON blog_posts.user_id = users.userid 
       LEFT JOIN comments ON blog_posts.postsid = comments.post_id 
@@ -73,8 +77,6 @@ router.get('/blog_view', async (request, response) => {
   }
 });
 
-
-
 router.get('/myblog_view', async (request, response) => {
   const userId = request.query.userId;
   try {
@@ -98,11 +100,7 @@ router.get('/myblog_view', async (request, response) => {
 
     const formattedResults = await Promise.all(results.map(async (post) => {
       const [comments] = await pool.query(`
-        SELECT id, user_id, comment 
-        FROM comments 
-        WHERE post_id = ? 
-        ORDER BY created_at DESC
-      `, [post.postsid]);
+        SELECT id, user_id, comment FROM comments WHERE post_id = ? ORDER BY created_at DESC`, [post.postsid]);
       return {
         ...post,
         comment: comments,
@@ -115,6 +113,7 @@ router.get('/myblog_view', async (request, response) => {
     response.status(500).json({ message: 'Error fetching blog posts', error });
   }
 });
+
 
 
 module.exports = router;

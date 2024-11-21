@@ -10,9 +10,9 @@ import { Comment } from '../home/home.component';
   selector: 'app-my-blogs',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: '../home/home.component.html',
+  templateUrl: './my-blogs.component.html',
   styleUrls: ['../home/home.component.css']
- 
+
 })
 export class MyBlogsComponent implements OnInit {
 
@@ -65,7 +65,6 @@ export class MyBlogsComponent implements OnInit {
         });
     });
   }
-
   private setupSocketConnection(): void {
     const userId = this.logindata.userid;
     this.socket = io('http://localhost:5000', {
@@ -101,14 +100,6 @@ export class MyBlogsComponent implements OnInit {
     }
   }
 
-  private removeCommentFromPost(postId: number, commentId: number): void {
-    const post = this.blogPosts.find(p => p.postsid === postId);
-    if (post) {
-      post.comment = post.comment.filter(c => c.id !== commentId);
-      this.cdr.detectChanges();
-    }
-  }
-
   likePost(postId: number): void {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post) {
@@ -137,22 +128,23 @@ export class MyBlogsComponent implements OnInit {
     post.showCommentInput = !post.showCommentInput;
   }
 
-deleteComment(postId: number, commentId: number): void {
-
-    const userId = parseInt(this.logindata.userid, 10); 
+  private removeCommentFromPost(postId: number, commentId: number): void {
     const post = this.blogPosts.find(p => p.postsid === postId);
-    if (post && post.user_id === userId) {
-        this.socket?.emit('deleteComment', commentId, postId, userId);
-    } else {
-        const comment = post?.comment.find(c => c.id === commentId);
-        if (comment && comment.userId === userId) {
-            this.socket?.emit('deleteComment', commentId, postId, userId);
-        } else {
-            alert('You are not authorized to delete this comment');
-        }
+    if (post) {
+      post.comment = post.comment.filter(c => c.id !== commentId);
+      this.cdr.detectChanges();
     }
-}
+  }
 
+  deleteComment(postId: number, commentId: number): void {
+    const userId = parseInt(this.logindata.userid, 10);
+
+    if (this.socket) {
+      this.socket.emit('deleteComment', commentId, postId, userId);
+    } else {
+      console.error('Socket connection is not established.');
+    }
+  }
 
   editComment(comment: any): void {
     comment.editing = true;
@@ -160,17 +152,17 @@ deleteComment(postId: number, commentId: number): void {
   }
 
   saveEditComment(postId: number, comment: { id: number, userId: number, comment: string, editText: string }) {
-    const newCommentText = comment.editText || '';  
+    const newCommentText = comment.editText || '';
     if (newCommentText && newCommentText !== comment.comment) {
       if (this.socket) {
-        this.socket.emit('editComment', { 
-          postId, 
-          commentId: comment.id, 
-          newCommentText, 
-          userId: this.logindata.userid 
+        this.socket.emit('editComment', {
+          postId,
+          commentId: comment.id,
+          newCommentText,
+          userId: this.logindata.userid
         });
-        
-        comment.comment = newCommentText; 
+
+        comment.comment = newCommentText;
       } else {
         console.error('Socket connection is not established.');
       }

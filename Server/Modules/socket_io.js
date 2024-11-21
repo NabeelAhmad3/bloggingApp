@@ -46,9 +46,7 @@ function setupSocketIO(server) {
                 socket.emit('error', 'Invalid comment ID');
                 return;
             }
-
             const [comment] = await pool.query('SELECT user_id FROM comments WHERE id = ? AND user_id = ?', [commentId, userId]);
-
             if (!comment || comment.length === 0) {
                 console.error('No comment found for this user');
                 socket.emit('error', 'Unauthorized action or comment not found');
@@ -58,69 +56,35 @@ function setupSocketIO(server) {
             const [comments] = await pool.query('SELECT * FROM comments WHERE post_id = ?', [postId]);
             io.emit('updateComments', { postId, comments });
         });
+
         socket.on('deleteComment', async (commentId, postId, userId) => {
-            if (!postId || !commentId || !userId) {
-                console.log('Invalid or undefined postId, commentId, or userId:', postId, commentId, userId);
-                socket.emit('commentDeleted', { success: false, message: 'Post ID, Comment ID, or User ID is missing' });
-                return;
-            }
-
             try {
-                console.log('Received postId:', postId, 'and commentId:', commentId, 'and userId:', userId); // Log to confirm received data
+                const commentQuery = 'SELECT user_id FROM comments WHERE id = ? AND post_id = ?';
+                const [commentRows] = await pool.query(commentQuery, [commentId, postId]);
 
-                // First, get the post owner ID
-                const postQuery = 'SELECT user_id AS postOwnerId FROM blog_posts WHERE postsid = ?';
-                const [postRows] = await pool.query(postQuery, [postId]);
+                if (commentRows.length > 0) {
+                    const commentOwnerId = commentRows[0].user_id;
+                    if (parseInt(userId) === commentOwnerId) {
+                        const deleteQuery = 'DELETE FROM comments WHERE id = ? AND post_id = ?';
+                        const [result] = await pool.query(deleteQuery, [commentId, postId]);
 
-                if (postRows.length > 0) {
-                    const postOwnerId = postRows[0].postOwnerId;
-                    console.log('Post Owner ID:', postOwnerId);
+                        if (result.affectedRows > 0) {
+                            io.emit('commentDeleted', { success: true, commentId, postId });
 
-                    // Now, get the comment's owner user ID
-                    const commentQuery = 'SELECT user_id FROM comments WHERE id = ? AND post_id = ?';
-                    const [commentRows] = await pool.query(commentQuery, [commentId, postId]);
-
-                    if (commentRows.length > 0) {
-                        const commentOwnerId = commentRows[0].user_id;
-                        console.log('Comment Owner ID:', commentOwnerId);
-
-                        // Ensure that userId, postOwnerId, and commentOwnerId are numbers before comparison
-                        if (parseInt(userId) === postOwnerId || parseInt(userId) === commentOwnerId) {
-                            const deleteQuery = 'DELETE FROM comments WHERE id = ? AND post_id = ?';
-                            const [result] = await pool.query(deleteQuery, [commentId, postId]);
-
-                            console.log('Delete result:', result);
-
-                            if (result.affectedRows > 0) {
-                                // Emit to all clients about the deleted comment
-                                io.emit('commentDeleted', { success: true, commentId, postId });
-
-                                // Optionally, emit a success message to the client who triggered the delete
-                                socket.emit('commentDeleted', { success: true, commentId, postId });
-                                console.log(`Comment with ID ${commentId} deleted from post ${postId}`);
-                            } else {
-                                console.log('No rows affected, comment might not exist or already deleted.');
-                                socket.emit('commentDeleted', { success: false, message: 'Comment not found or already deleted' });
-                            }
+                            socket.emit('commentDeleted', { success: true, commentId, postId });
                         } else {
-                            console.log(`User ${userId} is not authorized to delete comment on post ${postId}`);
-                            socket.emit('commentDeleted', { success: false, message: 'You are not authorized to delete this comment' });
+                            socket.emit('commentDeleted', { success: false, message: 'Comment not found or already deleted' });
                         }
                     } else {
-                        console.log('Comment not found');
-                        socket.emit('commentDeleted', { success: false, message: 'Comment not found' });
+                        socket.emit('commentDeleted', { success: false, message: 'You are not authorized to delete this comment' });
                     }
                 } else {
-                    console.log('Post not found');
-                    socket.emit('commentDeleted', { success: false, message: 'Post not found' });
+                    socket.emit('commentDeleted', { success: false, message: 'Comment not found' });
                 }
             } catch (error) {
-                console.error('Error deleting comment:', error);
                 socket.emit('commentDeleted', { success: false, message: 'Failed to delete comment' });
             }
         });
-
-
 
         async function getCommentsForPost(postId) {
             const [comments] = await pool.query('SELECT id, user_id, comment FROM comments WHERE post_id = ?', [postId]);
