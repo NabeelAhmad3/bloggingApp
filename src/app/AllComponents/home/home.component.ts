@@ -5,7 +5,7 @@ import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angu
 import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
 
-interface BlogPost {
+export interface BlogPost {
   postsid: number;
   name: string;
   created_at: Date;
@@ -18,12 +18,12 @@ interface BlogPost {
   hasLiked: boolean;
 }
 
-interface Comment {
+export interface Comment {
   id: number;
   userId: number;
   comment: string;
   editText: string;
-  editing: boolean; 
+  editing: boolean;
 }
 
 @Component({
@@ -97,6 +97,11 @@ export class HomeComponent implements OnInit {
     this.socket.on('updateComments', (updatedComment: { postId: number; comments: Comment[] }) => {
       this.updatePostComments(updatedComment);
     });
+
+    // Listen for comment deletion
+    this.socket.on('commentDeleted', (data: { postId: number, commentId: number }) => {
+      this.removeCommentFromPost(data.postId, data.commentId);
+    });
   }
 
   private updatePostLikes(updatedPost: { postId: number; likes: number }): void {
@@ -111,6 +116,14 @@ export class HomeComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.postId);
     if (post) {
       post.comment = updatedComment.comments;
+      this.cdr.detectChanges();
+    }
+  }
+
+  private removeCommentFromPost(postId: number, commentId: number): void {
+    const post = this.blogPosts.find(p => p.postsid === postId);
+    if (post) {
+      post.comment = post.comment.filter(c => c.id !== commentId);
       this.cdr.detectChanges();
     }
   }
@@ -161,8 +174,10 @@ export class HomeComponent implements OnInit {
       return;
     }
 
+    const userId = parseInt(this.logindata.userid, 10); // Ensure userId is a number
+
     if (this.socket) {
-      this.socket.emit('deleteComment', { postId, commentId });
+      this.socket.emit('deleteComment', commentId, postId, userId);
     } else {
       console.error('Socket connection is not established.');
     }
@@ -179,26 +194,24 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    const newCommentText = comment.editText || '';  
+    const newCommentText = comment.editText || '';
     if (newCommentText && newCommentText !== comment.comment) {
       if (this.socket) {
-        this.socket.emit('editComment', { 
-          postId, 
-          commentId: comment.id, 
-          newCommentText, 
-          userId: this.logindata.userid 
+        this.socket.emit('editComment', {
+          postId,
+          commentId: comment.id,
+          newCommentText,
+          userId: this.logindata.userid
         });
-        
-        comment.comment = newCommentText; 
-        // comment.editing = false;
+
+        comment.comment = newCommentText;
       } else {
         console.error('Socket connection is not established.');
       }
     } else {
       console.error('No changes detected or invalid input');
     }
-}
-
+  }
 
   OpenModal() {
     const regModal = document.getElementById('regModal');

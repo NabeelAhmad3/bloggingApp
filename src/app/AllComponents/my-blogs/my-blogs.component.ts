@@ -3,32 +3,24 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
-
-interface BlogPost {
-  postsid: number;
-  name: string;
-  created_at: Date;
-  description: string;
-  image: string;
-  likes: number;
-  comment: { id: number, userId: number, comment: string }[];
-  commentInput?: string;
-  showCommentInput?: boolean;
-  hasLiked: boolean;
-}
+import { BlogPost } from '../home/home.component';
+import { Comment } from '../home/home.component';
 
 @Component({
   selector: 'app-my-blogs',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './my-blogs.component.html',
-  styleUrls: ['./my-blogs.component.css']
+  templateUrl: '../home/home.component.html',
+  styleUrls: ['../home/home.component.css']
+ 
 })
 export class MyBlogsComponent implements OnInit {
+
   blogPosts: BlogPost[] = [];
   private socket: Socket | null = null;
   isLoggedIn: boolean = false;
   logindata: any = {};
+
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) {
     if (isPlatformBrowser(this.platformId)) {
       this.logindata = {
@@ -84,8 +76,12 @@ export class MyBlogsComponent implements OnInit {
       this.updatePostLikes(updatedlike);
     });
 
-    this.socket.on('updateComments', (updatedComment: { postId: number; comments: { id: number, userId: number, comment: string }[] }) => {
+    this.socket.on('updateComments', (updatedComment: { postId: number; comments: Comment[] }) => {
       this.updatePostComments(updatedComment);
+    });
+
+    this.socket.on('commentDeleted', (data: { postId: number, commentId: number }) => {
+      this.removeCommentFromPost(data.postId, data.commentId);
     });
   }
 
@@ -97,10 +93,18 @@ export class MyBlogsComponent implements OnInit {
     }
   }
 
-  private updatePostComments(updatedComment: { postId: number; comments: { id: number, userId: number, comment: string }[] }): void {
+  private updatePostComments(updatedComment: { postId: number; comments: Comment[] }): void {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.postId);
     if (post) {
       post.comment = updatedComment.comments;
+      this.cdr.detectChanges();
+    }
+  }
+
+  private removeCommentFromPost(postId: number, commentId: number): void {
+    const post = this.blogPosts.find(p => p.postsid === postId);
+    if (post) {
+      post.comment = post.comment.filter(c => c.id !== commentId);
       this.cdr.detectChanges();
     }
   }
@@ -144,17 +148,52 @@ export class MyBlogsComponent implements OnInit {
     }
     post.showCommentInput = !post.showCommentInput;
   }
+
   deleteComment(postId: number, commentId: number): void {
     if (!this.isLoggedIn) {
       this.OpenModal();
       return;
     }
+
+    const userId = parseInt(this.logindata.userid, 10); // Ensure userId is a number
+
     if (this.socket) {
-      this.socket.emit('deleteComment', { postId, commentId });
+      this.socket.emit('deleteComment', commentId, postId, userId);
     } else {
       console.error('Socket connection is not established.');
     }
   }
+
+  editComment(comment: any): void {
+    comment.editing = true;
+    comment.editText = comment.comment;
+  }
+
+  saveEditComment(postId: number, comment: { id: number, userId: number, comment: string, editText: string }) {
+    if (!this.isLoggedIn) {
+      this.OpenModal();
+      return;
+    }
+
+    const newCommentText = comment.editText || '';  
+    if (newCommentText && newCommentText !== comment.comment) {
+      if (this.socket) {
+        this.socket.emit('editComment', { 
+          postId, 
+          commentId: comment.id, 
+          newCommentText, 
+          userId: this.logindata.userid 
+        });
+        
+        comment.comment = newCommentText; 
+      } else {
+        console.error('Socket connection is not established.');
+      }
+    } else {
+      console.error('No changes detected or invalid input');
+    }
+  }
+
   OpenModal() {
     const regModal = document.getElementById('regModal');
     if (regModal) {

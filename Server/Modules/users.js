@@ -17,7 +17,7 @@ router.post('/register', async (request, response) => {
         const result = await pool.query(sql, [name, email, phone, hashedPassword]);
         const token = jwt.sign({ id: result.insertId }, secretKey, { expiresIn: '12h' });
 
-        response.status(201).json({ message: 'User created successfully',token: token, userid: result[0].insertId });
+        response.status(201).json({ message: 'User created successfully', token: token, userid: result[0].insertId });
     } catch (error) {
         console.error('Error during user registration:', error);
         response.status(500).json({ message: 'Error adding user', error: error.message });
@@ -51,15 +51,17 @@ router.post('/login', async (request, response) => {
     }
 });
 
-router.get('/userDetails/:userid', (request, response) => {
-    const { userid } = request.params;
-    const sql = `SELECT name, email FROM users WHERE userid = ?`; 
-    pool.query(sql, [userid], (err, result) => {
-        if (err) {
-            return response.status(500).send({ error: 'Database query failed' });
-        }
-        response.status(200).send(result); 
-    });
+router.get('/userDetails', async (request, response) => {
+    const userId = request.query.userId;
+    try {
+        const [results] = await pool.query(`
+        SELECT name ,email FROM users WHERE userid = ?`, [userId]);
+
+        response.json(results);
+    } catch (error) {
+        console.error('Error fetching user name:', error);
+        response.status(500).json({ message: 'Error fetching user name', error });
+    }
 });
 
 module.exports = router;
