@@ -20,32 +20,27 @@
     <button class="btn btn-primary ms-3" (click)="toggleCommentInput(post)">
       Comments
     </button>
-    <div *ngIf="post.showCommentInput" class="comments-section">
-      <div class="comment-input">
-        <input class="form-control" [(ngModel)]="post.commentInput" placeholder="Write a comment..." />
-        <button class="btn btn-primary" (click)="commentPost(post.postsid)">Post Comment</button>
+    <div *ngIf="post.showCommentInput" class="comments-section p-3">
+      <div class="comment-input mb-3 d-flex align-items-center">
+          <input [(ngModel)]="post.commentInput" class="form-control me-2" placeholder="Write a comment..." />
+          <button (click)="commentPost(post.postsid)" class="btn btn-outline-primary">Submit</button>
       </div>
 
-      <div *ngFor="let comment of post.comment">
-        <div class="comment">
-          <span>{{ comment.comment }}</span>
-          <button *ngIf="comment.userId == logindata.userid && !comment.editing" class="btn btn-warning btn-sm ms-2"
-            (click)="editComment(comment)">
-            Edit
-          </button>
-          <button *ngIf="comment.userId == logindata.userid && !comment.editing" class="btn btn-danger btn-sm ms-2"
-            (click)="deleteComment(post.postsid, comment.id)">
-            Delete
-          </button>
 
-          <div *ngIf="comment.editing" class="comment-edit">
-            <input [(ngModel)]="comment.editText" class="form-control" aria-label="Edit your comment" />
-            <button class="btn btn-primary btn-sm" (click)="saveEditComment(post.postsid, comment)">
-              Save
-            </button>
-          </div>
+      <div *ngFor="let comment of post.comment" class="mb-3">
+        <div class="comment d-flex justify-content-between">
+            <span>{{ comment.comment }}</span>
+            <div *ngIf="comment.userId == logindata.userid" class="d-flex">
+                <button *ngIf="!comment.editing" class="btn btn-warning btn-sm me-2" (click)="editComment(comment)">Edit</button>
+                <button *ngIf="!comment.editing" class="btn btn-danger btn-sm" (click)="deleteComment(post.postsid, comment.id)">Delete</button>
+            </div>
         </div>
-      </div>
+
+        <div *ngIf="comment.editing" class="mt-2">
+            <input [(ngModel)]="comment.editText" class="form-control mb-2" aria-label="Edit your comment" />
+            <button class="btn btn-primary btn-sm" (click)="saveEditComment(post.postsid, comment)">Save</button>
+        </div>
+    </div>
     </div>
   </div>
 </div>

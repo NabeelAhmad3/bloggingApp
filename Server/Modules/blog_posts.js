@@ -113,6 +113,47 @@ router.get('/myblog_view', async (request, response) => {
     response.status(500).json({ message: 'Error fetching blog posts', error });
   }
 });
+router.put('/edit_post', async (request, response) => {
+  const { postId, description, imageBase64, userId } = request.body;
+
+  const query = `UPDATE blog_posts SET description = COALESCE(?, description), image = COALESCE(?, image) WHERE postsid = ? AND user_id = ?`;
+
+  try {
+    const [result] = await pool.query(query, [description, imageBase64, postId, userId]);
+
+    if (result.affectedRows === 0) {
+      return response.status(404).json({ error: 'Post not found or you are not authorized to edit this post' });
+    }
+
+    response.json({ message: 'Post updated successfully' });
+  } catch (error) {
+    console.error('Error updating blog post:', error);
+    response.status(500).json({ error: 'An error occurred while updating the blog post', details: error });
+  }
+});
+router.delete('/delete_post/:postId', async (request, response) => {
+  const { postId } = request.params;
+  const userId = request.query.userId;
+
+  const deleteComments = `DELETE FROM comments WHERE post_id = ?`;
+  const deletePost = `DELETE FROM blog_posts WHERE postsid = ? AND user_id = ?`;
+
+  try {
+    await pool.query(deleteComments, [postId]);
+
+    const [result] = await pool.query(deletePost, [postId, userId]);
+
+    if (result.affectedRows === 0) {
+      return response.status(404).json({ error: 'Post not found or you are not authorized to delete this post' });
+    }
+
+    response.json({ message: 'Post and associated comments deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting blog post:', error);
+    response.status(500).json({ error: 'An error occurred while deleting the blog post', details: error });
+  }
+});
+
 
 
 

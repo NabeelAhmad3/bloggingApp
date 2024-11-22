@@ -97,8 +97,7 @@ export class HomeComponent implements OnInit {
     this.socket.on('updateComments', (updatedComment: { postId: number; comments: Comment[] }) => {
       this.updatePostComments(updatedComment);
     });
-
-    // Listen for comment deletion
+    
     this.socket.on('commentDeleted', (data: { postId: number, commentId: number }) => {
       this.removeCommentFromPost(data.postId, data.commentId);
     });

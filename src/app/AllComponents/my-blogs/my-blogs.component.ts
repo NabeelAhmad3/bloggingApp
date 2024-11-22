@@ -3,15 +3,38 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
-import { BlogPost } from '../home/home.component';
-import { Comment } from '../home/home.component';
+
+export interface Comment {
+  id: number;
+  postId: number;
+  userId: number;
+  comment: any;
+  editing?: boolean;
+  editText?: string;
+}
+
+export interface BlogPost {
+  name: any;
+  created_at: string | number | Date;
+  postsid: number;
+  description: string;
+  image?: string;
+  likes: number;
+  comment: Comment[];
+  commentInput: string;
+  showCommentInput: boolean;
+  hasLiked: boolean;
+  editing?: boolean;
+  editDescription?: string;
+  editImage?: string;
+}
 
 @Component({
   selector: 'app-my-blogs',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './my-blogs.component.html',
-  styleUrls: ['../home/home.component.css']
+  styleUrls: ['./my-blogs.component.css']
 
 })
 export class MyBlogsComponent implements OnInit {
@@ -146,12 +169,13 @@ export class MyBlogsComponent implements OnInit {
     }
   }
 
-  editComment(comment: any): void {
+  editComment(comment: Comment): void {
     comment.editing = true;
-    comment.editText = comment.comment;
+    comment.editText = comment.comment || ''; // Ensure editText is a string
   }
 
-  saveEditComment(postId: number, comment: { id: number, userId: number, comment: string, editText: string }) {
+
+  saveEditComment(postId: number, comment: { id: number, userId: number, comment: string, editText?: string }) {
     const newCommentText = comment.editText || '';
     if (newCommentText && newCommentText !== comment.comment) {
       if (this.socket) {
@@ -171,5 +195,59 @@ export class MyBlogsComponent implements OnInit {
     }
   }
 
+
+  editPost(post: BlogPost): void {
+    post.editing = true;
+    post.editDescription = post.description;
+    post.editImage = post.image;
+  }
+  saveEditPost(post: BlogPost): void {
+    if (post.editDescription || post.editImage) {
+      this.http.put('http://localhost:5000/blog_posts/edit_post', {
+        postId: post.postsid,
+        description: post.editDescription,
+        imageBase64: post.editImage,
+        userId: this.logindata.userid
+      }).subscribe({
+        next: () => {
+          post.description = post.editDescription!;
+          post.image = post.editImage;
+          post.editing = false;
+          alert('Post updated successfully');
+        },
+        error: (error) => {
+          console.error('Error updating post:', error);
+          alert('Failed to update post');
+        }
+      });
+    } else {
+      alert('No changes made');
+    }
+  }
+  deletePost(postId: number): void {
+    if (confirm('Are you sure you want to delete this post?')) {
+      this.http.delete(`http://localhost:5000/blog_posts/delete_post/${postId}?userId=${this.logindata.userid}`)
+        .subscribe({
+          next: () => {
+            this.blogPosts = this.blogPosts.filter(post => post.postsid !== postId);
+            alert('Post deleted successfully');
+          },
+          error: (error) => {
+            console.error('Error deleting post:', error);
+            alert('Failed to delete post');
+          }
+        });
+    }
+  }
+  onFileChange(event: any, post: BlogPost): void {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        post.editImage = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
 
 }

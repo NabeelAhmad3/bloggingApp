@@ -1,0 +1,19 @@
+.comments-section {
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.comment {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.card-body {
+  object-fit: cover;
+  width: 90%;
+  border: none;
+  border-radius: 10px;
+}
