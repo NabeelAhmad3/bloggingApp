@@ -11,9 +11,24 @@
   padding: 10px;
   margin-bottom: 10px;
 }
-.card-body {
-  object-fit: cover;
-  width: 90%;
-  border: none;
+
+.card-body img {
+  width: 100%;
+  height: auto;
   border-radius: 10px;
+  object-fit: cover;
+}
+
+.imageChange {
+  border: 1px solid;
+  border-radius: 7px;
+  background:  #0d6efd;;
+  color: white;
+  padding: 5px;
+  margin-bottom: 15px;
+}
+.imageChange:hover {
+  
+  transform: scale(1.1);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
 }

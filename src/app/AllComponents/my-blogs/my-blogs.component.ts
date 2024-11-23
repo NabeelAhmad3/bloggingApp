@@ -171,7 +171,7 @@ export class MyBlogsComponent implements OnInit {
 
   editComment(comment: Comment): void {
     comment.editing = true;
-    comment.editText = comment.comment || ''; // Ensure editText is a string
+    comment.editText = comment.comment || ''; 
   }
 
 

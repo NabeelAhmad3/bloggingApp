@@ -1,4 +1,4 @@
-<div class="blog-container container mt-4">
+<div class="blog-container container mt-4 mb-4">
     <div *ngIf="blogPosts.length === 0" class="alert alert-info text-center">
         No Blog Posts Available.
     </div>
@@ -28,15 +28,24 @@
         </div>
 
         <div *ngIf="post.editing" class="card-body">
-            <textarea [(ngModel)]="post.editDescription" class="form-control mb-3" rows="3"
-                placeholder="Edit description"></textarea>
-            <input type="file" class="form-control mb-3" (change)="onFileChange($event, post)" />
+            <div>
+                <img *ngIf="post.editImage" [src]="post.editImage" alt="Preview Image" class="image-preview mb-3" />
+            </div>
+            <div class="d-flex justify-content-between">
+                <textarea [(ngModel)]="post.editDescription" class="form-control mb-3 me-3" rows="3"
+                    placeholder="Edit description"></textarea>
+                <label for="image" class="imageChange">Edit Image</label>
+                <input type="file" id="image" class="form-control mb-3" (change)="onFileChange($event, post)"
+                    style="display: none;" />
+            </div>
             <button (click)="saveEditPost(post)" class="btn btn-primary me-2">Save</button>
             <button (click)="post.editing = false" class="btn btn-secondary">Cancel</button>
         </div>
 
         <div *ngIf="!post.editing" class="card-body">
-            <img *ngIf="post.image" [src]="post.image" alt="Post image" class="image" />
+            <div>
+                <img *ngIf="post.image" [src]="post.image" alt="image" class="image mb-3 " />
+            </div>
             <p [innerHTML]="post.description" class="mb-3"></p>
         </div>
 
