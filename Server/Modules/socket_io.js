@@ -85,7 +85,7 @@ function setupSocketIO(server) {
 
         async function getCommentsForPost(postId) {
             const [comments] = await pool.query(`
-                SELECT c.id, c.user_id, c.comment, u.name AS username FROM comments c JOIN users u ON c.user_id = u.userid WHERE c.post_id =  `, [postId]);
+                SELECT c.id, c.user_id, c.comment, u.name AS username FROM comments c JOIN users u ON c.user_id = u.userid WHERE c.post_id =  ?`, [postId]);
 
             return comments.map(row => ({
                 id: row.id, userId: row.user_id, comment: row.comment, username: row.username

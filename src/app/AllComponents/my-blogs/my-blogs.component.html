@@ -63,8 +63,13 @@
             </div>
 
             <div *ngFor="let comment of post.comment" class="mb-3">
-                <div class="comment d-flex justify-content-between">
-                    <span><strong>{{ comment.username }}</strong>:{{ comment.comment }}</span>
+                <div class="comment d-flex justify-content-between"><div>
+                    <div class="d-flex align-items-baseline">
+                      <img src="/assets/favicon.ico" alt="img" class="user-name_image">
+                      <span><strong>{{ comment.username }}</strong></span>
+                    </div>
+                       <span>{{ comment.comment }}</span> 
+                      </div>
                     <div *ngIf="comment.userId == logindata.userid" class="d-flex">
                         <button *ngIf="!comment.editing" class="btn btn-warning btn-sm me-2"
                             (click)="editComment(comment)">Edit</button>

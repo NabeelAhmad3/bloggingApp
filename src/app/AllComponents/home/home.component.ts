@@ -19,7 +19,7 @@ export interface BlogPost {
 }
 
 export interface Comment {
-username: any;
+  username: string;
   id: number;
   userId: number;
   comment: string;
@@ -98,7 +98,7 @@ export class HomeComponent implements OnInit {
     this.socket.on('updateComments', (updatedComment: { postId: number; comments: Comment[] }) => {
       this.updatePostComments(updatedComment);
     });
-    
+
     this.socket.on('commentDeleted', (data: { postId: number, commentId: number }) => {
       this.removeCommentFromPost(data.postId, data.commentId);
     });
@@ -115,12 +115,12 @@ export class HomeComponent implements OnInit {
   private updatePostComments(updatedComment: { postId: number; comments: Comment[] }): void {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.postId);
     if (post) {
-      post.comment = updatedComment.comments; 
+      post.comment = updatedComment.comments;
       post.comment.forEach(c => c.editing = false); // Reset editing state
-      this.cdr.detectChanges(); 
+      this.cdr.detectChanges();
     }
   }
-  
+
 
   private removeCommentFromPost(postId: number, commentId: number): void {
     const post = this.blogPosts.find(p => p.postsid === postId);
@@ -214,5 +214,5 @@ export class HomeComponent implements OnInit {
       regModal.setAttribute('style', 'display: block');
     }
   }
-  
+
 }

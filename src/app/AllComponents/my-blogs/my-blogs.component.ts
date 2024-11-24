@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
 
 export interface Comment {
-username: string;
+  username: string;
   id: number;
   postId: number;
   userId: number;
@@ -172,7 +172,7 @@ export class MyBlogsComponent implements OnInit {
 
   editComment(comment: Comment): void {
     comment.editing = true;
-    comment.editText = comment.comment || ''; 
+    comment.editText = comment.comment || '';
   }
 
 
