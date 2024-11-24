@@ -29,7 +29,7 @@
 
       <div *ngFor="let comment of post.comment" class="mb-3">
         <div class="comment d-flex justify-content-between">
-            <span>{{ comment.comment }}</span>
+            <span><strong>{{ comment.username }}</strong>:{{ comment.comment }}</span>
             <div *ngIf="comment.userId == logindata.userid" class="d-flex">
                 <button *ngIf="!comment.editing" class="btn btn-warning btn-sm me-2" (click)="editComment(comment)">Edit</button>
                 <button *ngIf="!comment.editing" class="btn btn-danger btn-sm" (click)="deleteComment(post.postsid, comment.id)">Delete</button>

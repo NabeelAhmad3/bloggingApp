@@ -19,6 +19,7 @@ export interface BlogPost {
 }
 
 export interface Comment {
+username: any;
   id: number;
   userId: number;
   comment: string;
@@ -114,10 +115,12 @@ export class HomeComponent implements OnInit {
   private updatePostComments(updatedComment: { postId: number; comments: Comment[] }): void {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.postId);
     if (post) {
-      post.comment = updatedComment.comments;
-      this.cdr.detectChanges();
+      post.comment = updatedComment.comments; 
+      post.comment.forEach(c => c.editing = false); // Reset editing state
+      this.cdr.detectChanges(); 
     }
   }
+  
 
   private removeCommentFromPost(postId: number, commentId: number): void {
     const post = this.blogPosts.find(p => p.postsid === postId);

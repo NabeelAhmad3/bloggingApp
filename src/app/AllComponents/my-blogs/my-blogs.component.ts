@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
 
 export interface Comment {
+username: string;
   id: number;
   postId: number;
   userId: number;

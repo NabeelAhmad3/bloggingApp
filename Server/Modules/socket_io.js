@@ -59,36 +59,37 @@ function setupSocketIO(server) {
 
         socket.on('deleteComment', async (commentId, postId, userId) => {
             try {
-                const commentQuery = 'SELECT user_id FROM comments WHERE id = ? AND post_id = ?';
-                const [commentRows] = await pool.query(commentQuery, [commentId, postId]);
+                const [rows] = await pool.query(
+                    'SELECT user_id FROM comments WHERE id = ? AND post_id = ?',
+                    [commentId, postId]
+                );
 
-                if (commentRows.length > 0) {
-                    const commentOwnerId = commentRows[0].user_id;
-                    if (parseInt(userId) === commentOwnerId) {
-                        const deleteQuery = 'DELETE FROM comments WHERE id = ? AND post_id = ?';
-                        const [result] = await pool.query(deleteQuery, [commentId, postId]);
-
-                        if (result.affectedRows > 0) {
-                            io.emit('commentDeleted', { success: true, commentId, postId });
-
-                            socket.emit('commentDeleted', { success: true, commentId, postId });
-                        } else {
-                            socket.emit('commentDeleted', { success: false, message: 'Comment not found or already deleted' });
-                        }
-                    } else {
-                        socket.emit('commentDeleted', { success: false, message: 'You are not authorized to delete this comment' });
-                    }
-                } else {
-                    socket.emit('commentDeleted', { success: false, message: 'Comment not found' });
+                if (rows.length === 0) {
+                    return socket.emit('error', { message: 'Comment not found or already deleted' });
                 }
+
+                if (rows[0].user_id !== parseInt(userId)) {
+                    return socket.emit('error', { message: 'Unauthorized action' });
+                }
+
+                await pool.query('DELETE FROM comments WHERE id = ?', [commentId]);
+
+                const comments = await getCommentsForPost(postId);
+                io.emit('updateComments', { postId, comments });
             } catch (error) {
-                socket.emit('commentDeleted', { success: false, message: 'Failed to delete comment' });
+                console.error('Error deleting comment:', error);
+                socket.emit('error', { message: 'Failed to delete comment' });
             }
         });
 
+
         async function getCommentsForPost(postId) {
-            const [comments] = await pool.query('SELECT id, user_id, comment FROM comments WHERE post_id = ?', [postId]);
-            return comments.map(row => ({ id: row.id, userId: row.user_id, comment: row.comment }));
+            const [comments] = await pool.query(`
+                SELECT c.id, c.user_id, c.comment, u.name AS username FROM comments c JOIN users u ON c.user_id = u.userid WHERE c.post_id =  `, [postId]);
+
+            return comments.map(row => ({
+                id: row.id, userId: row.user_id, comment: row.comment, username: row.username
+            }));
         }
 
         socket.on('disconnect', () => {
