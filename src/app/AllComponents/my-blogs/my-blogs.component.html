@@ -35,7 +35,7 @@
                 <textarea [(ngModel)]="post.editDescription" class="form-control mb-3 me-3" rows="3"
                     placeholder="Edit description"></textarea>
                 <label for="image" class="imageChange">Edit Image</label>
-                <input type="file" id="image" class="form-control mb-3" (change)="onFileChange($event, post)"
+                <input type="file" id="image" class="form-control mb-3" (change)="editImage($event, post)"
                     style="display: none;" />
             </div>
             <button (click)="saveEditPost(post)" class="btn btn-primary me-2">Save</button>
@@ -65,8 +65,8 @@
             <div *ngFor="let comment of post.comment" class="mb-3">
                 <div class="comment d-flex justify-content-between"><div>
                     <div class="d-flex align-items-baseline">
-                      <img src="/assets/favicon.ico" alt="img" class="user-name_image">
-                      <span><strong>{{ comment.username }}</strong></span>
+                      <img src="/assets/favicon.ico" alt="img" class="user-name_image me-2">
+                      <span style="color:  #0d6efd;;"><strong>{{ comment.username }}</strong></span>
                     </div>
                        <span>{{ comment.comment }}</span> 
                       </div>

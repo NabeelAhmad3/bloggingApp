@@ -100,7 +100,7 @@ export class HomeComponent implements OnInit {
     });
 
     this.socket.on('commentDeleted', (data: { postId: number, commentId: number }) => {
-      this.removeCommentFromPost(data.postId, data.commentId);
+      this.removeComment(data.postId, data.commentId);
     });
   }
 
@@ -120,16 +120,13 @@ export class HomeComponent implements OnInit {
       this.cdr.detectChanges();
     }
   }
-
-
-  private removeCommentFromPost(postId: number, commentId: number): void {
+  private removeComment(postId: number, commentId: number): void {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (post) {
       post.comment = post.comment.filter(c => c.id !== commentId);
       this.cdr.detectChanges();
     }
   }
-
   likePost(postId: number): void {
     if (!this.isLoggedIn) {
       this.OpenModal();
@@ -199,9 +196,7 @@ export class HomeComponent implements OnInit {
 
         comment.comment = newCommentText;
         comment.editing = false;
-      } else {
-        console.error('Socket connection is not established.');
-      }
+      } 
     } else {
       console.error('No changes detected or invalid input');
     }

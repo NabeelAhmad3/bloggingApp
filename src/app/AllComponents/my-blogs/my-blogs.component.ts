@@ -124,6 +124,14 @@ export class MyBlogsComponent implements OnInit {
     }
   }
 
+  private removeCommentFromPost(postId: number, commentId: number): void {
+    const post = this.blogPosts.find(p => p.postsid === postId);
+    if (post) {
+      post.comment = post.comment.filter(c => c.id !== commentId);
+      this.cdr.detectChanges();
+    }
+  }
+
   likePost(postId: number): void {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post) {
@@ -150,14 +158,6 @@ export class MyBlogsComponent implements OnInit {
 
   toggleCommentInput(post: BlogPost): void {
     post.showCommentInput = !post.showCommentInput;
-  }
-
-  private removeCommentFromPost(postId: number, commentId: number): void {
-    const post = this.blogPosts.find(p => p.postsid === postId);
-    if (post) {
-      post.comment = post.comment.filter(c => c.id !== commentId);
-      this.cdr.detectChanges();
-    }
   }
 
   deleteComment(postId: number, commentId: number): void {
@@ -188,14 +188,11 @@ export class MyBlogsComponent implements OnInit {
         });
 
         comment.comment = newCommentText;
-      } else {
-        console.error('Socket connection is not established.');
-      }
+      } 
     } else {
       console.error('No changes detected or invalid input');
     }
   }
-
 
   editPost(post: BlogPost): void {
     post.editing = true;
@@ -240,7 +237,7 @@ export class MyBlogsComponent implements OnInit {
         });
     }
   }
-  onFileChange(event: any, post: BlogPost): void {
+  editImage(event: any, post: BlogPost): void {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
