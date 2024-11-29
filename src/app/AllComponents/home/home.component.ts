@@ -19,8 +19,8 @@ export interface BlogPost {
 }
 
 export interface Comment {
+  commentId: any;
   username: string;
-  id: number;
   userId: number;
   comment: string;
   editText: string;
@@ -123,7 +123,7 @@ export class HomeComponent implements OnInit {
   private removeComment(postId: number, commentId: number): void {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (post) {
-      post.comment = post.comment.filter(c => c.id !== commentId);
+      post.comment = post.comment.filter(c => c.commentId !== commentId);
       this.cdr.detectChanges();
     }
   }
@@ -164,6 +164,11 @@ export class HomeComponent implements OnInit {
   }
 
   deleteComment(postId: number, commentId: number): void {
+    if (!commentId) {
+      console.error('Comment ID is null or undefined. Post ID:', postId);
+      return;
+    }
+
     const userId = parseInt(this.logindata.userid, 10);
 
     if (this.socket) {
@@ -172,6 +177,7 @@ export class HomeComponent implements OnInit {
       console.error('Socket connection is not established.');
     }
   }
+
 
   editComment(comment: Comment): void {
     comment.editing = true;
@@ -189,14 +195,14 @@ export class HomeComponent implements OnInit {
       if (this.socket) {
         this.socket.emit('editComment', {
           postId,
-          commentId: comment.id,
+          commentId: comment.commentId,
           newCommentText,
           userId: this.logindata.userid
         });
 
         comment.comment = newCommentText;
         comment.editing = false;
-      } 
+      }
     } else {
       console.error('No changes detected or invalid input');
     }

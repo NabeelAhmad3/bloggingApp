@@ -58,6 +58,8 @@ function setupSocketIO(server) {
         });
 
         socket.on('deleteComment', async (commentId, postId, userId) => {
+            console.log('Received commentId:', commentId, 'postId:', postId, 'userId:', userId);
+
             try {
                 const [rows] = await pool.query(
                     'SELECT user_id FROM comments WHERE id = ? AND post_id = ?',
@@ -65,10 +67,12 @@ function setupSocketIO(server) {
                 );
 
                 if (rows.length === 0) {
+                    console.error('Comment not found or already deleted');
                     return socket.emit('error', { message: 'Comment not found or already deleted' });
                 }
 
                 if (rows[0].user_id !== parseInt(userId)) {
+                    console.error('Unauthorized deletion attempt');
                     return socket.emit('error', { message: 'Unauthorized action' });
                 }
 
@@ -76,19 +80,22 @@ function setupSocketIO(server) {
 
                 const comments = await getCommentsForPost(postId);
                 io.emit('updateComments', { postId, comments });
+
             } catch (error) {
                 console.error('Error deleting comment:', error);
                 socket.emit('error', { message: 'Failed to delete comment' });
             }
         });
 
-
         async function getCommentsForPost(postId) {
             const [comments] = await pool.query(`
                 SELECT c.id, c.user_id, c.comment, u.name AS username FROM comments c JOIN users u ON c.user_id = u.userid WHERE c.post_id =  ?`, [postId]);
 
             return comments.map(row => ({
-                id: row.id, userId: row.user_id, comment: row.comment, username: row.username
+                commentId: row.id,
+                userId: row.user_id,
+                comment: row.comment,
+                username: row.username
             }));
         }
 

@@ -5,8 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
 
 export interface Comment {
+commentId: number;
   username: string;
-  id: number;
   postId: number;
   userId: number;
   comment: any;
@@ -127,7 +127,7 @@ export class MyBlogsComponent implements OnInit {
   private removeCommentFromPost(postId: number, commentId: number): void {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (post) {
-      post.comment = post.comment.filter(c => c.id !== commentId);
+      post.comment = post.comment.filter(c => c.commentId !== commentId);
       this.cdr.detectChanges();
     }
   }
@@ -175,20 +175,20 @@ export class MyBlogsComponent implements OnInit {
     comment.editText = comment.comment || '';
   }
 
-
-  saveEditComment(postId: number, comment: { id: number, userId: number, comment: string, editText?: string }) {
+  saveEditComment(postId: number, comment: Comment): void {
     const newCommentText = comment.editText || '';
     if (newCommentText && newCommentText !== comment.comment) {
       if (this.socket) {
         this.socket.emit('editComment', {
           postId,
-          commentId: comment.id,
+          commentId: comment.commentId,
           newCommentText,
           userId: this.logindata.userid
         });
 
         comment.comment = newCommentText;
-      } 
+        comment.editing = false;
+      }
     } else {
       console.error('No changes detected or invalid input');
     }

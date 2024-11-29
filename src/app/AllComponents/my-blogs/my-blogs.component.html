@@ -70,11 +70,17 @@
                     </div>
                        <span>{{ comment.comment }}</span> 
                       </div>
+                      <div>
+                        <span>User ID: {{ comment.userId }}</span>
+                      </div>
+                      <div>
+                        <span>Comment ID: {{ comment.commentId }}</span>
+                      </div>
                     <div *ngIf="comment.userId == logindata.userid" class="d-flex">
                         <button *ngIf="!comment.editing" class="btn btn-warning btn-sm me-2"
                             (click)="editComment(comment)">Edit</button>
                         <button *ngIf="!comment.editing" class="btn btn-danger btn-sm"
-                            (click)="deleteComment(post.postsid, comment.id)">Delete</button>
+                            (click)="deleteComment(post.postsid, comment.commentId)">Delete</button>
                     </div>
                 </div>
 
