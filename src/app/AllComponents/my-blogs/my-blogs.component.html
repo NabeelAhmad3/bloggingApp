@@ -37,6 +37,7 @@
         </div>
 
         <div *ngIf="post.editing" class="card-body">
+            
             <div class="d-flex justify-content-between">
                 <textarea [(ngModel)]="post.editDescription" class="form-control mb-3 me-3" rows="3"
                     placeholder="Edit description"></textarea>
@@ -46,11 +47,13 @@
                 <input type="file" id="image" class="form-control mb-3" (change)="editImage($event, post)"
                     style="display: none;" />
             </div>
+            <div class="mb-3">
+                <button (click)="saveEditPost(post)" class="btn btn-primary me-2">Save</button>
+                <button (click)="post.editing = false" class="btn btn-secondary">Cancel</button>
+            </div>
             <div>
                 <img *ngIf="post.editImage" [src]="post.editImage" alt="Preview Image" class="image-preview mb-3" />
             </div>
-            <button (click)="saveEditPost(post)" class="btn btn-primary me-2">Save</button>
-            <button (click)="post.editing = false" class="btn btn-secondary">Cancel</button>
         </div>
 
         <div *ngIf="!post.editing" class="card-body">

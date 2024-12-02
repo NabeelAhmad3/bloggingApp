@@ -78,12 +78,15 @@ export class BlogPostsComponent {
         return;
       }
 
+      const rawDesc = this.editerForm.get('description')?.value || '';
+
+      const plainDesc = rawDesc.replace(/<\/?[^>]+(>|$)/g, '');
+
       const formData = {
-        description: this.editerForm.get('description')?.value,
+        description: plainDesc,
         imageBase64: this.editerForm.get('image')?.value,
         user_id: authUserId
       };
-
       this.http.post('http://localhost:5000/blog_posts/posting', formData)
         .subscribe({
           next: () => {
