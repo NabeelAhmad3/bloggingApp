@@ -31,6 +31,7 @@ router.post('/posting', async (request, response) => {
     response.status(500).json({ error: 'An error occurred while creating the blog post', details: error });
   }
 });
+
 router.get('/blog_view', async (request, response) => {
   const userId = request.query.userId;
   try {
@@ -58,12 +59,7 @@ router.get('/blog_view', async (request, response) => {
         INNER JOIN users ON comments.user_id = users.userid
         WHERE post_id = ?
       `, [post.postsid]);
-    
-      // Log each comment's id
-      comments.forEach(comment => {
-        console.log(comment.id);  // Logging the id of each comment
-      });
-    
+
       const allComments = comments.map(comment => ({
         username: comment.username,
         userId: comment.user_id,
@@ -107,7 +103,8 @@ router.get('/myblog_view', async (request, response) => {
 
     const formattedResults = await Promise.all(results.map(async (post) => {
       const [comments] = await pool.query(`
-        SELECT comments.id, comments.user_id, comments.comment, users.name AS username FROM comments INNER JOIN users ON comments.user_id = users.userid WHERE post_id = ? `,
+        SELECT comments.id, comments.user_id, comments.comment, users.name AS username FROM comments INNER JOIN users ON comments.user_id = users.userid WHERE post_id = ? 
+ORDER BY comments.created_at DESC`,
         [post.postsid]);
 
       const allComments = comments.map(comment => ({
@@ -130,6 +127,7 @@ router.get('/myblog_view', async (request, response) => {
     response.status(500).json({ message: 'Error fetching blog posts', error });
   }
 });
+
 router.put('/edit_post', async (request, response) => {
   const { postId, description, imageBase64, userId } = request.body;
 
@@ -148,6 +146,7 @@ router.put('/edit_post', async (request, response) => {
     response.status(500).json({ error: 'An error occurred while updating the blog post', details: error });
   }
 });
+
 router.delete('/delete_post/:postId', async (request, response) => {
   const { postId } = request.params;
   const userId = request.query.userId;
@@ -170,8 +169,5 @@ router.delete('/delete_post/:postId', async (request, response) => {
     response.status(500).json({ error: 'An error occurred while deleting the blog post', details: error });
   }
 });
-
-
-
 
 module.exports = router;

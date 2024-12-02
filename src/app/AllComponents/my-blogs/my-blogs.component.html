@@ -2,6 +2,13 @@
     <div *ngIf="blogPosts.length === 0" class="alert alert-info text-center">
         No Blog Posts Available.
     </div>
+    <div *ngIf="successMessageEdit" class="alert alert-success" role="alert">
+        Blog post successfully edited!
+    </div>
+
+    <div *ngIf="successMessageDelete" class="alert alert-success" role="alert">
+        Blog post successfully deleted!
+    </div>
 
     <div *ngFor="let post of blogPosts" class="card mb-4 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -50,6 +57,9 @@
         </div>
 
         <div class="card-footer align-items-center">
+            <div *ngIf="successMessageLike" class="alert alert-success" role="alert" style="width: 15%;">
+                Blog post like Once!
+            </div>
             <button class="btn btn-success " (click)="likePost(post.postsid)">
                 Like <span class="fw-bold">{{ post.likes }}</span>
             </button>
@@ -63,19 +73,14 @@
             </div>
 
             <div *ngFor="let comment of post.comment" class="mb-3">
-                <div class="comment d-flex justify-content-between"><div>
-                    <div class="d-flex align-items-baseline">
-                      <img src="/assets/favicon.ico" alt="img" class="user-name_image me-2">
-                      <span style="color:  #0d6efd;;"><strong>{{ comment.username }}</strong></span>
+                <div class="comment d-flex justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-baseline">
+                            <img src="/assets/favicon.ico" alt="img" class="user-name_image me-2">
+                            <span style="color:  #0d6efd;;"><strong>{{ comment.username }}</strong></span>
+                        </div>
+                        <span>{{ comment.comment }}</span>
                     </div>
-                       <span>{{ comment.comment }}</span> 
-                      </div>
-                      <div>
-                        <span>User ID: {{ comment.userId }}</span>
-                      </div>
-                      <div>
-                        <span>Comment ID: {{ comment.commentId }}</span>
-                      </div>
                     <div *ngIf="comment.userId == logindata.userid" class="d-flex">
                         <button *ngIf="!comment.editing" class="btn btn-warning btn-sm me-2"
                             (click)="editComment(comment)">Edit</button>
@@ -88,6 +93,7 @@
                     <input [(ngModel)]="comment.editText" class="form-control mb-2" aria-label="Edit your comment" />
                     <button class="btn btn-primary btn-sm"
                         (click)="saveEditComment(post.postsid, comment)">Save</button>
+                    <button class="btn btn-secondary btn-sm" (click)="comment.editing = false">Cancel</button>
                 </div>
             </div>
         </div>

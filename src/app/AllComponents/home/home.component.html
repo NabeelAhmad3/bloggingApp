@@ -14,6 +14,9 @@
     </div>
 
     <p [innerHTML]="post.description"></p>
+    <div *ngIf="successMessageLike" class="alert alert-success" role="alert" style="width: 15%;">
+      Blog post like Once!
+  </div>
     <button class="btn btn-success" (click)="likePost(post.postsid)">
       Like <span class="fw-bold">{{ post.likes }}</span>
     </button>
@@ -35,23 +38,16 @@
             </div>
             <span>{{ comment.comment }}</span>
           </div>
-          <div>
-            <span>User ID: {{ comment.userId }}</span>
-          </div>
-          <div>
-            <span>Comment ID: {{ comment.commentId }}</span>
-          </div>
           <div *ngIf="comment.userId == logindata.userid && isLoggedIn" class="d-flex">
-            <button *ngIf="!comment.editing" class="btn btn-warning btn-sm me-2"
-              (click)="editComment(comment)">Edit</button>
-            <button *ngIf="!comment.editing" class="btn btn-danger btn-sm"
-              (click)="deleteComment(post.postsid, comment.commentId)">Delete</button>
+            <button *ngIf="!comment.editing" class="btn btn-warning btn-sm me-2"(click)="editComment(comment)">Edit</button>
+            <button *ngIf="!comment.editing" class="btn btn-danger btn-sm"(click)="deleteComment(post.postsid, comment.commentId)">Delete</button>
           </div>
         </div>
 
         <div *ngIf="comment.editing" class="mt-2">
           <input [(ngModel)]="comment.editText" class="form-control mb-2" aria-label="Edit your comment" />
           <button class="btn btn-primary btn-sm" (click)="saveEditComment(post.postsid, comment)">Save</button>
+          <button class="btn btn-secondary btn-sm" (click)="comment.editing = false">Cancel</button>
         </div>
       </div>
     </div>

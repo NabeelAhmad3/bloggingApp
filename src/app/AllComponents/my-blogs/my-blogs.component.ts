@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
 
 export interface Comment {
-commentId: number;
+  commentId: number;
   username: string;
   postId: number;
   userId: number;
@@ -44,6 +44,10 @@ export class MyBlogsComponent implements OnInit {
   private socket: Socket | null = null;
   isLoggedIn: boolean = false;
   logindata: any = {};
+  successMessageEdit: boolean = false;
+  successMessageDelete: boolean = false;
+  successMessageLike: boolean = false;
+
 
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) {
     if (isPlatformBrowser(this.platformId)) {
@@ -136,7 +140,10 @@ export class MyBlogsComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post) {
       if (post.hasLiked) {
-        alert('You can only like this post once.');
+        this.successMessageLike = true;
+        setTimeout(() => {
+          this.successMessageLike = false;
+        }, 3000);
         return;
       }
       post.hasLiked = true;
@@ -181,8 +188,8 @@ export class MyBlogsComponent implements OnInit {
       if (this.socket) {
         this.socket.emit('editComment', {
           postId,
-          commentId: comment.commentId,
           newCommentText,
+          commentId: comment.commentId,
           userId: this.logindata.userid
         });
 
@@ -211,7 +218,10 @@ export class MyBlogsComponent implements OnInit {
           post.description = post.editDescription!;
           post.image = post.editImage;
           post.editing = false;
-          alert('Post updated successfully');
+          this.successMessageEdit = true;
+          setTimeout(() => {
+            this.successMessageEdit = false;
+          }, 3000);
         },
         error: (error) => {
           console.error('Error updating post:', error);
@@ -228,7 +238,10 @@ export class MyBlogsComponent implements OnInit {
         .subscribe({
           next: () => {
             this.blogPosts = this.blogPosts.filter(post => post.postsid !== postId);
-            alert('Post deleted successfully');
+            this.successMessageDelete = true;
+            setTimeout(() => {
+              this.successMessageDelete = false;
+            }, 3000);
           },
           error: (error) => {
             console.error('Error deleting post:', error);

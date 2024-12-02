@@ -39,6 +39,7 @@ export class HomeComponent implements OnInit {
   private socket: Socket | null = null;
   isLoggedIn: boolean = false;
   logindata: any = {};
+  successMessageLike: boolean=false;
 
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) {
     if (isPlatformBrowser(this.platformId)) {
@@ -116,7 +117,7 @@ export class HomeComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.postId);
     if (post) {
       post.comment = updatedComment.comments;
-      post.comment.forEach(c => c.editing = false); // Reset editing state
+      post.comment.forEach(c => c.editing = false); 
       this.cdr.detectChanges();
     }
   }
@@ -135,7 +136,10 @@ export class HomeComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (this.socket && postId && post) {
       if (post.hasLiked) {
-        alert('You can only like this post once.');
+        this.successMessageLike = true;
+        setTimeout(() => {
+          this.successMessageLike = false;
+        }, 3000);
         return;
       }
       post.hasLiked = true;
@@ -195,8 +199,8 @@ export class HomeComponent implements OnInit {
       if (this.socket) {
         this.socket.emit('editComment', {
           postId,
-          commentId: comment.commentId,
           newCommentText,
+          commentId: comment.commentId,
           userId: this.logindata.userid
         });
 
