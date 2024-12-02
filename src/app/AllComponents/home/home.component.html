@@ -46,8 +46,8 @@
 
         <div *ngIf="comment.editing" class="mt-2">
           <input [(ngModel)]="comment.editText" class="form-control mb-2" aria-label="Edit your comment" />
-          <button class="btn btn-primary btn-sm" (click)="saveEditComment(post.postsid, comment)">Save</button>
-          <button class="btn btn-secondary btn-sm" (click)="comment.editing = false">Cancel</button>
+          <button class="btn btn-primary btn-sm me-2" (click)="saveEditComment(post.postsid, comment)">Save</button>
+          <button class="btn btn-secondary btn-sm " (click)="comment.editing = false">Cancel</button>
         </div>
       </div>
     </div>

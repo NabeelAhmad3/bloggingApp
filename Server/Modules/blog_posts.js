@@ -103,8 +103,7 @@ router.get('/myblog_view', async (request, response) => {
 
     const formattedResults = await Promise.all(results.map(async (post) => {
       const [comments] = await pool.query(`
-        SELECT comments.id, comments.user_id, comments.comment, users.name AS username FROM comments INNER JOIN users ON comments.user_id = users.userid WHERE post_id = ? 
-ORDER BY comments.created_at DESC`,
+        SELECT comments.id, comments.user_id, comments.comment, users.name AS username FROM comments INNER JOIN users ON comments.user_id = users.userid WHERE post_id = ? `,
         [post.postsid]);
 
       const allComments = comments.map(comment => ({

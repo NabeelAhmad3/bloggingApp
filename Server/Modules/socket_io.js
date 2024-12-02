@@ -59,7 +59,6 @@ function setupSocketIO(server) {
             io.emit('updateComments', { postId, comments });
         });
 
-
         socket.on('deleteComment', async (commentId, postId, userId) => {
 
             try {
@@ -67,11 +66,6 @@ function setupSocketIO(server) {
                     'SELECT user_id FROM comments WHERE id = ? AND post_id = ?',
                     [commentId, postId]
                 );
-
-                if (rows.length === 0) {
-                    console.error('Comment not found or already deleted');
-                    return socket.emit('error', { message: 'Comment not found or already deleted' });
-                }
 
                 if (rows[0].user_id !== parseInt(userId)) {
                     console.error('Unauthorized deletion attempt');
