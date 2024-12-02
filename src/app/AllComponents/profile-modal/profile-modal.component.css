@@ -14,3 +14,15 @@
     transform: none;
     margin: 0;
 }
+.like-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .like-icon:hover {
+    transform: scale(1.2);
+    filter: brightness(1.2);
+  }

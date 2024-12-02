@@ -20,10 +20,12 @@
           </div>
 
           <div class="form-group mt-3">
-            <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleEmojiPicker()">
-              Add Emoji
-            </button>
-            <label for="imageUpload" class="form-label mt-2 ms-2 btn btn-sm btn-outline-primary">Upload Image</label>
+            <span (click)="toggleEmojiPicker()">
+              <img src="assets/emoji.png" alt="img" class="like-icon">
+            </span>
+            <label for="imageUpload" class="form-label mt-2 ms-2">
+              <img src="assets/image.png" alt="img" class="like-icon">
+            </label>
             <input id="imageUpload" type="file" (change)="editerFormImage($event)" style="display: none;">
           </div>
 

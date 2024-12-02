@@ -8,48 +8,46 @@
       <span>Posted by: {{ post.name }}</span>
       <span>Created at: {{ post.created_at | date }}</span>
     </div>
-
+        <p [innerHTML]="post.description"></p>
     <div class="post-image">
       <img [src]="post.image" alt="Post image" />
     </div>
-
-    <p [innerHTML]="post.description"></p>
     <div *ngIf="successMessageLike" class="alert alert-success" role="alert" style="width: 15%;">
       Blog post like Once!
-  </div>
-    <button class="btn btn-success" (click)="likePost(post.postsid)">
+    </div>
+    <div class="mb-3">
       Like <span class="fw-bold">{{ post.likes }}</span>
-    </button>
-    <button class="btn btn-primary ms-3" (click)="toggleCommentInput(post)">
-      Comments
-    </button>
-    <div *ngIf="post.showCommentInput" class="comments-section p-3">
-      <div class="comment-input mb-3 d-flex align-items-center">
-        <input [(ngModel)]="post.commentInput" class="form-control me-2" placeholder="Write a comment..." />
-        <button (click)="commentPost(post.postsid)" class="btn btn-outline-primary">Submit</button>
-      </div>
-
-      <div *ngFor="let comment of post.comment" class="mb-3">
-        <div class="comment d-flex justify-content-between">
-          <div>
-            <div class="d-flex align-items-baseline">
-              <img src="/assets/favicon.ico" alt="img" class="user-name_image me-2">
-              <span style="color:  #0d6efd;;"><strong>{{ comment.username }}</strong></span>
-            </div>
-            <span>{{ comment.comment }}</span>
-          </div>
-          <div *ngIf="comment.userId == logindata.userid && isLoggedIn" class="d-flex">
-            <button *ngIf="!comment.editing" class="btn btn-warning btn-sm me-2"(click)="editComment(comment)">Edit</button>
-            <button *ngIf="!comment.editing" class="btn btn-danger btn-sm"(click)="deleteComment(post.postsid, comment.commentId)">Delete</button>
-          </div>
+    </div>
+    <div>
+      <img src="assets/like.png" alt="likes" class="like-icon mb-3" (click)="likePost(post.postsid)" />
+      <img src="assets/comments.png" alt="comments" class="like-icon mb-3" (click)="toggleCommentInput(post)" />
+      <div *ngIf="post.showCommentInput" class="comments-section p-3">
+        <div class="comment-input mb-3 d-flex align-items-center">
+          <input [(ngModel)]="post.commentInput" class="form-control me-2" placeholder="Write a comment..." />
+          <button (click)="commentPost(post.postsid)" class="btn btn-outline-primary">Submit</button>
         </div>
 
-        <div *ngIf="comment.editing" class="mt-2">
-          <input [(ngModel)]="comment.editText" class="form-control mb-2" aria-label="Edit your comment" />
-          <button class="btn btn-primary btn-sm me-2" (click)="saveEditComment(post.postsid, comment)">Save</button>
-          <button class="btn btn-secondary btn-sm " (click)="comment.editing = false">Cancel</button>
+        <div *ngFor="let comment of post.comment" class="mb-3">
+          <div class="comment d-flex justify-content-between">
+            <div>
+              <div class="d-flex align-items-baseline">
+                <img src="/assets/favicon.ico" alt="img" class="user-name_image me-2">
+                <span style="color:  #0d6efd;;"><strong>{{ comment.username }}</strong></span>
+              </div>
+              <span>{{ comment.comment }}</span>
+            </div>
+            <div *ngIf="comment.userId == logindata.userid && isLoggedIn" class="d-flex cursor-pointer">
+                <img src="assets/edit.png" class="like-icon me-2" *ngIf="!comment.editing" (click)="editComment(comment)" />
+                <img src="assets/delete.jpg" class="like-icon" *ngIf="!comment.editing" (click)="deleteComment(post.postsid, comment.commentId)"/>
+            </div>
+          </div>
+
+          <div *ngIf="comment.editing" class="mt-2">
+            <input [(ngModel)]="comment.editText" class="form-control mb-2" aria-label="Edit your comment" />
+            <button class="btn btn-primary btn-sm me-2" (click)="saveEditComment(post.postsid, comment)">Save</button>
+            <button class="btn btn-secondary btn-sm " (click)="comment.editing = false">Cancel</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
