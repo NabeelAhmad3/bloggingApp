@@ -16,19 +16,28 @@ export class HeaderComponent implements OnInit {
   isLoggedIn: boolean = false;
   logindata: any = {};
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef, private router: Router) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.logindata = {
-        token: localStorage.getItem('authToken'),
-        userid: localStorage.getItem('authUserId')
-      };
-      this.isLoggedIn = !!this.logindata.token;
+      this.updateLoginStatus();
     }
   }
-  OpenModal() {
-    if (this.isLoggedIn) {
+
+  updateLoginStatus(): void {
+    this.logindata = {
+      token: localStorage.getItem('authToken'),
+      userid: localStorage.getItem('authUserId')
+    };
+    this.isLoggedIn = !!this.logindata.token;
+    this.cdr.detectChanges(); 
+  }
+
+  OpenModal(): void {
+    if (!this.isLoggedIn) {
       return ;
     } else {
       const regModal = document.getElementById('regModal');
