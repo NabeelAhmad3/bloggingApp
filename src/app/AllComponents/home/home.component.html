@@ -16,7 +16,8 @@
       Blog post like Once!
     </div>
     <div class="mb-3">
-      Like <span class="fw-bold">{{ post.likes }}</span>
+      <span class="fw-bold">  Likes {{ post.likes }}</span>
+      <span class="fw-bold"> Comments {{ post.comment.length || 0 }}</span>
     </div>
     <div>
       <img src="assets/like.png" alt="likes" class="like-icon mb-3" (click)="likePost(post.postsid)" />

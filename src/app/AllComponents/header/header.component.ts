@@ -38,8 +38,6 @@ export class HeaderComponent implements OnInit {
 
   OpenModal(): void {
     if (!this.isLoggedIn) {
-      return ;
-    } else {
       const regModal = document.getElementById('regModal');
       if (regModal) {
         regModal.classList.add('show');
