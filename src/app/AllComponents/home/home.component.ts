@@ -19,6 +19,9 @@ export interface BlogPost {
 }
 
 export interface Comment {
+replies: any;
+  replyInput: string;
+  showReplyInput: boolean;
   commentId: any;
   username: string;
   userId: number;
@@ -182,7 +185,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-
   editComment(comment: Comment): void {
     comment.editing = true;
     comment.editText = comment.comment;
@@ -211,7 +213,33 @@ export class HomeComponent implements OnInit {
       console.error('No changes detected or invalid input');
     }
   }
-
+  
+  replyToComment(postId: number, comment: Comment): void {
+    if (!this.isLoggedIn) {
+      this.OpenModal();
+      return;
+    }
+  
+    const replyInput = comment.replyInput?.trim();
+    if (this.socket && postId && comment.commentId && replyInput) {
+      this.socket.emit('replyToComment', {
+        postId,
+        parentCommentId: comment.commentId,
+        comment: replyInput,
+        userId: this.logindata.userid,
+      });
+  
+      comment.replyInput = ''; 
+      comment.showReplyInput = false;
+    } else {
+      console.error('Reply input or parent comment ID is missing or invalid.');
+    }
+  }
+  
+  toggleReplyInput(comment: Comment): void {
+    comment.showReplyInput = !comment.showReplyInput;
+  }
+  
   OpenModal() {
     const regModal = document.getElementById('regModal');
     if (regModal) {

@@ -8,7 +8,7 @@
       <span>Posted by: {{ post.name }}</span>
       <span>Created at: {{ post.created_at | date }}</span>
     </div>
-        <p [innerHTML]="post.description"></p>
+    <p [innerHTML]="post.description"></p>
     <div class="post-image">
       <img [src]="post.image" alt="Post image" />
     </div>
@@ -16,7 +16,7 @@
       Blog post like Once!
     </div>
     <div class="mb-3">
-      <span class="fw-bold">  Likes {{ post.likes }}</span>
+      <span class="fw-bold"> Likes {{ post.likes }}</span>
       <span class="fw-bold"> Comments {{ post.comment.length || 0 }}</span>
     </div>
     <div>
@@ -38,8 +38,10 @@
               <span>{{ comment.comment }}</span>
             </div>
             <div *ngIf="comment.userId == logindata.userid && isLoggedIn" class="d-flex cursor-pointer">
-                <img src="assets/edit.png" class="like-icon me-2" *ngIf="!comment.editing" (click)="editComment(comment)" />
-                <img src="assets/delete.jpg" class="like-icon" *ngIf="!comment.editing" (click)="deleteComment(post.postsid, comment.commentId)"/>
+              <img src="assets/edit.png" class="like-icon me-2" *ngIf="!comment.editing"
+                (click)="editComment(comment)" />
+              <img src="assets/delete.jpg" class="like-icon" *ngIf="!comment.editing"
+                (click)="deleteComment(post.postsid, comment.commentId)" />
             </div>
           </div>
 
@@ -48,7 +50,29 @@
             <button class="btn btn-primary btn-sm me-2" (click)="saveEditComment(post.postsid, comment)">Save</button>
             <button class="btn btn-secondary btn-sm " (click)="comment.editing = false">Cancel</button>
           </div>
+
+          <div class="replies ms-4">
+            <div *ngFor="let reply of comment.replies" class="reply d-flex justify-content-between mt-2">
+              <div>
+                <div class="d-flex align-items-baseline">
+                  <img src="/assets/favicon.ico" alt="img" class="user-name_image me-2" />
+                  <span style="color: #6c757d;"><strong>{{ reply.username }}</strong></span>
+                </div>
+                <span>{{ reply.comment }}</span>
+              </div>
+              <div *ngIf="reply.userId == logindata.userid && isLoggedIn" class="d-flex cursor-pointer">
+                <img src="assets/edit.png" class="like-icon me-2" *ngIf="!reply.editing" (click)="editComment(reply)" />
+                <img src="assets/delete.jpg" class="like-icon" *ngIf="!reply.editing" (click)="deleteComment(post.postsid, reply.commentId)" />
+              </div>
+            </div>
+          </div>
+          <div *ngIf="comment.showReplyInput" class="reply-input mt-2 ms-4">
+            <input [(ngModel)]="comment.replyInput" class="form-control mb-2" placeholder="Write a reply..." />
+            <button class="btn btn-primary btn-sm" (click)="replyToComment(post.postsid, comment)">submit</button>
+          </div>
+          <button class="btn btn-secondary btn-sm ms-4" (click)="toggleReplyInput(comment)">Reply</button>
         </div>
       </div>
     </div>
   </div>
+</div>
