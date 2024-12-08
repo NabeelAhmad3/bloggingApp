@@ -60,10 +60,6 @@
                 </div>
                 <span>{{ reply.comment }}</span>
               </div>
-              <div *ngIf="reply.userId == logindata.userid && isLoggedIn" class="d-flex cursor-pointer">
-                <img src="assets/edit.png" class="like-icon me-2" *ngIf="!reply.editing" (click)="editComment(reply)" />
-                <img src="assets/delete.jpg" class="like-icon" *ngIf="!reply.editing" (click)="deleteComment(post.postsid, reply.commentId)" />
-              </div>
             </div>
           </div>
           <div *ngIf="comment.showReplyInput" class="reply-input mt-2 ms-4">

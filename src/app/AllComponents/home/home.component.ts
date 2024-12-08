@@ -19,7 +19,8 @@ export interface BlogPost {
 }
 
 export interface Comment {
-replies: any;
+  
+  replies: { userId: number; username: string; comment: string }[];
   replyInput: string;
   showReplyInput: boolean;
   commentId: any;
@@ -106,6 +107,10 @@ export class HomeComponent implements OnInit {
     this.socket.on('commentDeleted', (data: { postId: number, commentId: number }) => {
       this.removeComment(data.postId, data.commentId);
     });
+
+    this.socket.on('updateReplies', (updatedReplies: { parentCommentId: number; replies: any[] }) => {
+      this.updateCommentReplies(updatedReplies);
+    });
   }
 
   private updatePostLikes(updatedPost: { postId: number; likes: number }): void {
@@ -130,6 +135,15 @@ export class HomeComponent implements OnInit {
       post.comment = post.comment.filter(c => c.commentId !== commentId);
       this.cdr.detectChanges();
     }
+  }
+  private updateCommentReplies(updatedReplies: { parentCommentId: number; replies: any[] }): void {
+    this.blogPosts.forEach(post => {
+      const comment = post.comment.find(c => c.commentId === updatedReplies.parentCommentId);
+      if (comment) {
+        comment.replies = updatedReplies.replies; 
+      }
+    });
+    this.cdr.detectChanges(); 
   }
   likePost(postId: number): void {
     if (!this.isLoggedIn) {
@@ -226,9 +240,9 @@ export class HomeComponent implements OnInit {
         postId,
         parentCommentId: comment.commentId,
         comment: replyInput,
-        userId: this.logindata.userid,
+        userId: this.logindata
       });
-  
+      
       comment.replyInput = ''; 
       comment.showReplyInput = false;
     } else {

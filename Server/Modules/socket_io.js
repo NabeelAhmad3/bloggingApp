@@ -82,34 +82,54 @@ function setupSocketIO(server) {
                 socket.emit('error', { message: 'Failed to delete comment' });
             }
         });
-        socket.on('replyToComment', async ({ postId, parentCommentId, comment, userId }) => {
+
+        socket.on('replyToComment', async ({ parentCommentId, comment, userId }) => {
             try {
-                const insertResult = await pool.query(
-                    `INSERT INTO comments (post_id, parent_comment_id, comment, user_id) VALUES (?, ?, ?, ?)`,
-                    [postId, parentCommentId, comment, userId]
-                );
-                const [idResult] = await pool.query(`SELECT LAST_INSERT_ID() AS id`);
-                const replyId = idResult[0]?.id;
-                const [replies] = await pool.query(
-                    `SELECT * FROM comments WHERE parent_comment_id = ?`,
+                const createdAt = new Date().toISOString();
+
+                const newReply = {
+                    replyId: Date.now(),
+                    userId,
+                    comment,
+                    createdAt,
+                };
+
+                const [existingReplies] = await pool.query(
+                    `SELECT replies FROM comments WHERE id = ?`,
                     [parentCommentId]
                 );
+
+                let replies = JSON.parse(existingReplies[0]?.replies || '[]');
+                replies.push(newReply);
+
+                await pool.query(
+                    `UPDATE comments SET replies = ? WHERE id = ?`,
+                    [JSON.stringify(replies), parentCommentId]
+                );
+
                 io.emit('updateReplies', { parentCommentId, replies });
             } catch (error) {
                 console.error('Error replying to comment:', error);
+                socket.emit('error', 'Failed to reply to comment');
             }
         });
 
 
         async function getCommentsForPost(postId) {
             const [comments] = await pool.query(`
-                SELECT c.id, c.user_id, c.comment, u.name AS username FROM comments c JOIN users u ON c.user_id = u.userid WHERE c.post_id =  ?`, [postId]);
+        SELECT c.id, c.user_id, c.comment, c.replies, u.name AS username 
+        FROM comments c 
+        JOIN users u ON c.user_id = u.userid 
+        WHERE c.post_id = ?`,
+                [postId]
+            );
 
             return comments.map(row => ({
                 commentId: row.id,
                 userId: row.user_id,
                 comment: row.comment,
-                username: row.username
+                username: row.username,
+                replies: JSON.parse(row.replies || '[]'),
             }));
         }
 
