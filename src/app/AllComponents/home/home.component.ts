@@ -49,7 +49,8 @@ export class HomeComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       this.logindata = {
         token: localStorage.getItem('authToken'),
-        userid: localStorage.getItem('authUserId')
+        userid: localStorage.getItem('authUserId'),
+        userName: localStorage.getItem('userName')
       };
       this.isLoggedIn = !!this.logindata.token;
     }
@@ -240,7 +241,9 @@ export class HomeComponent implements OnInit {
         postId,
         parentCommentId: comment.commentId,
         comment: replyInput,
-        userId: this.logindata
+        userId: this.logindata.userid,
+        userName:this.logindata.userName
+
       });
       
       comment.replyInput = ''; 

@@ -46,6 +46,7 @@ export class RegPageComponent implements OnInit {
       next: (response: any) => {
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('authUserId', response.userid);
+        localStorage.setItem("userName",response.userName);
         window.location.reload();
       },
       error: (error: any) => {
@@ -65,6 +66,7 @@ export class RegPageComponent implements OnInit {
       next: (response: any) => {
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('authUserId', response.userid);
+        localStorage.setItem("userName",response.userName);
         window.location.reload();
       },
       error: (error: any) => {

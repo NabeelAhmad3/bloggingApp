@@ -26,7 +26,8 @@ export class ProfileModalComponent {
   updateLoginStatus(): void {
     this.logindata = {
       token: localStorage.getItem('authToken'),
-      userid: localStorage.getItem('authUserId')
+      userid: localStorage.getItem('authUserId'),
+      userName: localStorage.getItem('authUserName')
     };
     this.isLoggedIn = !!this.logindata.token;
     if (this.isLoggedIn && this.logindata.userid) {
@@ -51,6 +52,7 @@ export class ProfileModalComponent {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUserId');
+      localStorage.removeItem('userName');
       this.isLoggedIn = false;
       this.userName = null;
       this.closeModal();

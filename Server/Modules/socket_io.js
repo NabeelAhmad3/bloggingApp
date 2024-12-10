@@ -82,38 +82,36 @@ function setupSocketIO(server) {
                 socket.emit('error', { message: 'Failed to delete comment' });
             }
         });
-
-        socket.on('replyToComment', async ({ parentCommentId, comment, userId }) => {
+        socket.on('replyToComment', async ({ parentCommentId, comment, userId, userName }) => {
             try {
-                const createdAt = new Date().toISOString();
-
+                const createdAt = new Date();
                 const newReply = {
-                    replyId: Date.now(),
                     userId,
+                    username: userName,
                     comment,
                     createdAt,
                 };
-
+        
                 const [existingReplies] = await pool.query(
                     `SELECT replies FROM comments WHERE id = ?`,
                     [parentCommentId]
                 );
-
+        
                 let replies = JSON.parse(existingReplies[0]?.replies || '[]');
                 replies.push(newReply);
-
+        
                 await pool.query(
                     `UPDATE comments SET replies = ? WHERE id = ?`,
                     [JSON.stringify(replies), parentCommentId]
                 );
-
+        
                 io.emit('updateReplies', { parentCommentId, replies });
             } catch (error) {
                 console.error('Error replying to comment:', error);
                 socket.emit('error', 'Failed to reply to comment');
             }
         });
-
+        
 
         async function getCommentsForPost(postId) {
             const [comments] = await pool.query(`
