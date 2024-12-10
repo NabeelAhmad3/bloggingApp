@@ -84,34 +84,84 @@ function setupSocketIO(server) {
         });
         socket.on('replyToComment', async ({ parentCommentId, comment, userId, userName }) => {
             try {
-                const createdAt = new Date();
+                const createdAt = new Date().toISOString();
                 const newReply = {
                     userId,
+                    replyId: Date.now(),
                     username: userName,
                     comment,
                     createdAt,
                 };
-        
+
                 const [existingReplies] = await pool.query(
                     `SELECT replies FROM comments WHERE id = ?`,
                     [parentCommentId]
                 );
-        
+
                 let replies = JSON.parse(existingReplies[0]?.replies || '[]');
                 replies.push(newReply);
-        
+
                 await pool.query(
                     `UPDATE comments SET replies = ? WHERE id = ?`,
                     [JSON.stringify(replies), parentCommentId]
                 );
-        
+
                 io.emit('updateReplies', { parentCommentId, replies });
             } catch (error) {
                 console.error('Error replying to comment:', error);
                 socket.emit('error', 'Failed to reply to comment');
             }
         });
-        
+        socket.on('editReply', async ({ postId, commentId, replyId, newText, userId }) => {
+            try {
+                const [comment] = await pool.query('SELECT replies FROM comments WHERE id = ?', [commentId]);
+                let replies = JSON.parse(comment[0]?.replies || '[]');
+
+                const replyIndex = replies.findIndex(reply => reply.replyId === replyId && reply.userId === userId);
+
+                if (replyIndex === -1) {
+                    console.error('Reply not found or unauthorized');
+                    socket.emit('error', 'Reply not found or unauthorized');
+                    return;
+                }
+                replies[replyIndex].comment = newText;
+                await pool.query('UPDATE comments SET replies = ? WHERE id = ?', [JSON.stringify(replies), commentId]);
+
+                io.emit('updateReplies', { postId, commentId, replies });
+            } catch (error) {
+                console.error('Error editing reply:', error);
+                socket.emit('error', 'Failed to edit reply');
+            }
+        });
+
+        socket.on('deleteReply', async ({ postId, commentId, replyId, userId }) => {
+            try {
+
+                const [comment] = await pool.query('SELECT replies FROM comments WHERE id = ?', [commentId]);
+
+                let replies = JSON.parse(comment[0]?.replies || '[]');
+
+                const replyIndex = replies.findIndex(
+                    reply => reply.replyId === Number(replyId) && reply.userId === String(userId)
+                );
+
+                if (replyIndex === -1) {
+                    console.error(`Reply not found or unauthorized. replyId: ${replyId}, userId: ${userId}`);
+                    socket.emit('error', 'Reply not found or unauthorized');
+                    return;
+                }
+
+                replies.splice(replyIndex, 1);
+                await pool.query('UPDATE comments SET replies = ? WHERE id = ?', [JSON.stringify(replies), commentId]);
+
+                io.emit('updateReplies', { postId, commentId, replies });
+            } catch (error) {
+                console.error('Error deleting reply:', error);
+                socket.emit('error', 'Failed to delete reply');
+            }
+        });
+
+
 
         async function getCommentsForPost(postId) {
             const [comments] = await pool.query(`

@@ -19,8 +19,12 @@ export interface BlogPost {
 }
 
 export interface Comment {
-  
-  replies: { userId: number; username: string; comment: string }[];
+
+  replies: {
+    replyId: number;
+    editing: any;
+    editText: any; userId: any; username: string; comment: string
+  }[];
   replyInput: string;
   showReplyInput: boolean;
   commentId: any;
@@ -43,7 +47,7 @@ export class HomeComponent implements OnInit {
   private socket: Socket | null = null;
   isLoggedIn: boolean = false;
   logindata: any = {};
-  successMessageLike: boolean=false;
+  successMessageLike: boolean = false;
 
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) {
     if (isPlatformBrowser(this.platformId)) {
@@ -112,6 +116,10 @@ export class HomeComponent implements OnInit {
     this.socket.on('updateReplies', (updatedReplies: { parentCommentId: number; replies: any[] }) => {
       this.updateCommentReplies(updatedReplies);
     });
+
+    this.socket.on('replyDeleted', (data: { postId: number, commentId: number, replyId: number }) => {
+      this.removeReply(data.postId, data.commentId, data.replyId);
+    });
   }
 
   private updatePostLikes(updatedPost: { postId: number; likes: number }): void {
@@ -126,7 +134,7 @@ export class HomeComponent implements OnInit {
     const post = this.blogPosts.find(p => p.postsid === updatedComment.postId);
     if (post) {
       post.comment = updatedComment.comments;
-      post.comment.forEach(c => c.editing = false); 
+      post.comment.forEach(c => c.editing = false);
       this.cdr.detectChanges();
     }
   }
@@ -141,10 +149,21 @@ export class HomeComponent implements OnInit {
     this.blogPosts.forEach(post => {
       const comment = post.comment.find(c => c.commentId === updatedReplies.parentCommentId);
       if (comment) {
-        comment.replies = updatedReplies.replies; 
+        comment.replies = updatedReplies.replies;
       }
     });
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges();
+  }
+
+  private removeReply(postId: number, commentId: number, replyId: number): void {
+    const post = this.blogPosts.find(p => p.postsid === postId);
+    if (post) {
+      const comment = post.comment.find(c => c.commentId === commentId);
+      if (comment) {
+        comment.replies = comment.replies.filter(reply => reply.replyId !== replyId);
+        this.cdr.detectChanges();
+      }
+    }
   }
   likePost(postId: number): void {
     if (!this.isLoggedIn) {
@@ -228,13 +247,13 @@ export class HomeComponent implements OnInit {
       console.error('No changes detected or invalid input');
     }
   }
-  
+
   replyToComment(postId: number, comment: Comment): void {
     if (!this.isLoggedIn) {
       this.OpenModal();
       return;
     }
-  
+
     const replyInput = comment.replyInput?.trim();
     if (this.socket && postId && comment.commentId && replyInput) {
       this.socket.emit('replyToComment', {
@@ -242,21 +261,76 @@ export class HomeComponent implements OnInit {
         parentCommentId: comment.commentId,
         comment: replyInput,
         userId: this.logindata.userid,
-        userName:this.logindata.userName
+        userName: this.logindata.userName
 
       });
-      
-      comment.replyInput = ''; 
+
+      comment.replyInput = '';
       comment.showReplyInput = false;
     } else {
       console.error('Reply input or parent comment ID is missing or invalid.');
     }
   }
-  
+
   toggleReplyInput(comment: Comment): void {
     comment.showReplyInput = !comment.showReplyInput;
   }
-  
+  editReply(comment: Comment, reply: any): void {
+    reply.editing = true;
+    reply.editText = reply.comment;
+  }
+
+  saveEditReply(postId: number, comment: Comment, reply: any): void {
+    if (!this.isLoggedIn) {
+      this.OpenModal();
+      return;
+    }
+    const newReplyText = reply.editText?.trim();
+    if (newReplyText && newReplyText !== reply.comment) {
+      if (this.socket) {
+        this.socket.emit('editReply', {
+          postId,
+          commentId: comment.commentId,
+          replyId: reply.replyId,
+          newText: newReplyText,
+          userId: this.logindata.userid
+        });
+
+        reply.comment = newReplyText;
+        reply.editing = false;
+      }
+    } else {
+      console.error('No changes detected or invalid input');
+    }
+  }
+
+  cancelEditReply(reply: any): void {
+    reply.editing = false;
+    reply.editText = '';
+  }
+
+
+  deleteReply(postId: number, comment: Comment, replyId: number): void {
+    if (!replyId) {
+      console.error('Reply ID is null or undefined. Post ID:', postId);
+      return;
+    }
+
+    const userId = parseInt(this.logindata.userid, 10);
+
+    if (this.socket) {
+      this.socket.emit('deleteReply', {
+        postId,
+        replyId,
+        userId,
+        commentId: comment.commentId
+      });
+
+      this.removeReply(postId, comment.commentId, replyId);
+    } else {
+      console.error('Socket connection is not established.');
+    }
+  }
   OpenModal() {
     const regModal = document.getElementById('regModal');
     if (regModal) {
