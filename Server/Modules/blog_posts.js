@@ -54,7 +54,7 @@ router.get('/blog_view', async (request, response) => {
 
     const formattedResults = await Promise.all(results.map(async (post) => {
       const [comments] = await pool.query(`
-        SELECT comments.id, comments.user_id, comments.comment, users.name AS username
+        SELECT comments.id, comments.user_id, comments.comment,comments.replies, users.name AS username
         FROM comments
         INNER JOIN users ON comments.user_id = users.userid
         WHERE post_id = ?
@@ -64,15 +64,19 @@ router.get('/blog_view', async (request, response) => {
         username: comment.username,
         userId: comment.user_id,
         comment: comment.comment,
-        commentId: comment.id
+        commentId: comment.id,
+        replies: JSON.parse(comment.replies || '[]').map(reply => ({
+          username: reply.username,
+          comment: reply.comment,
+        }))
       }));
-    
+
       return {
         ...post,
         comment: allComments,
       };
     }));
-    
+
     response.json(formattedResults);
   } catch (error) {
     console.error('Error fetching blog posts:', error);
@@ -103,14 +107,21 @@ router.get('/myblog_view', async (request, response) => {
 
     const formattedResults = await Promise.all(results.map(async (post) => {
       const [comments] = await pool.query(`
-        SELECT comments.id, comments.user_id, comments.comment, users.name AS username FROM comments INNER JOIN users ON comments.user_id = users.userid WHERE post_id = ? `,
+        SELECT comments.id, comments.user_id, comments.comment,comments.replies, users.name AS username
+         FROM comments 
+         INNER JOIN users ON comments.user_id = users.userid
+          WHERE post_id = ? `,
         [post.postsid]);
 
       const allComments = comments.map(comment => ({
         comment: comment.comment,
         username: comment.username,
         userId: comment.user_id,
-        commentId: comment.id
+        commentId: comment.id,
+        replies: JSON.parse(comment.replies || '[]').map(reply => ({
+          username: reply.username,
+          comment: reply.comment,
+        }))
       }));
 
       return {

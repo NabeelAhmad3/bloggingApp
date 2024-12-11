@@ -37,13 +37,13 @@
         </div>
 
         <div *ngIf="post.editing" class="card-body">
-            
+
             <div class="d-flex justify-content-between">
                 <textarea [(ngModel)]="post.editDescription" class="form-control mb-3 me-3" rows="3"
                     placeholder="Edit description"></textarea>
-                    <label for="image">
-                        <img src="assets/edit-image.png"  style="width: 90px; height: 90px; cursor: pointer;"/>
-                    </label>
+                <label for="image">
+                    <img src="assets/edit-image.png" style="width: 90px; height: 90px; cursor: pointer;" />
+                </label>
                 <input type="file" id="image" class="form-control mb-3" (change)="editImage($event, post)"
                     style="display: none;" />
             </div>
@@ -67,7 +67,7 @@
                 Blog post like Once!
             </div>
             <div class="mb-3">
-                <span class="fw-bold">  Likes {{ post.likes }}</span>
+                <span class="fw-bold"> Likes {{ post.likes }}</span>
                 <span class="fw-bold"> Comments {{ post.comment.length || 0 }}</span>
             </div>
             <div>
@@ -82,21 +82,23 @@
                 </div>
 
                 <div *ngFor="let comment of post.comment" class="mb-3">
-                    <div class="comment d-flex justify-content-between">
-                        <div>
-                            <div class="d-flex align-items-baseline">
-                                <img src="/assets/favicon.ico" alt="img" class="user-name_image me-2">
-                                <span style="color:  #0d6efd;;"><strong>{{ comment.username }}</strong></span>
-                            </div>
-                            <span>{{ comment.comment }}</span>
+                    <div class="comment d-flex justify-content-between align-items-center">
+
+                        <div class="d-flex align-items-baseline">
+                          <img src="/assets/favicon.ico" alt="img" class="user-name_image me-2">
+                          <span style="color: #0d6efd;"><strong>{{ comment.username }}</strong></span>
                         </div>
-                        <div *ngIf="comment.userId == logindata.userid" class="d-flex cursor-pointer">
-                            <img src="assets/edit.png" alt="img" class="like-icon" *ngIf="!comment.editing"
+            
+                        <div class="d-flex align-items-center">
+                          <div *ngIf="comment.userId == logindata.userid && isLoggedIn" class="d-flex align-items-center">
+                            <img src="assets/edit.png" class="like-icon me-2" *ngIf="!comment.editing"
                               (click)="editComment(comment)" />
-                            <img src="assets/delete.jpg" alt="img" class="like-icon" *ngIf="!comment.editing"
-                                (click)="deleteComment(post.postsid, comment.commentId)">
+                            <img src="assets/delete.jpg" class="like-icon me-2" *ngIf="!comment.editing"
+                              (click)="deleteComment(post.postsid, comment.commentId)" />
+                          </div>
+                          <img src="assets/reply.png" class="like-icon" (click)="toggleReplyInput(comment)" />
                         </div>
-                    </div>
+                      </div>
 
                     <div *ngIf="comment.editing" class="mt-2">
                         <input [(ngModel)]="comment.editText" class="form-control mb-2"
@@ -105,7 +107,50 @@
                             (click)="saveEditComment(post.postsid, comment)">Save</button>
                         <button class="btn btn-secondary btn-sm" (click)="comment.editing = false">Cancel</button>
                     </div>
+
+
+                    <div class="replies ms-4">
+                        <div *ngFor="let reply of comment.replies" class="reply mt-2">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center" style="color: #6c757d;">
+
+                                    <span>
+                                        <img src="/assets/favicon.ico" alt="img" class="user-name_image me-2" />
+                                        <strong>{{ reply.username }}</strong>
+                                    </span>
+
+                                    <span>
+                                        <img src="assets/edit.png" class="like-icon me-2"
+                                            *ngIf="reply.userId === logindata.userid"
+                                            (click)="editReply(comment, reply)" />
+                                        <img src="assets/delete.jpg" class="like-icon"
+                                            *ngIf="reply.userId === logindata.userid"
+                                            (click)="deleteReply(post.postsid, comment, reply.replyId)" />
+                                    </span>
+                                </div>
+                                <span>{{ reply.comment }}</span>
+
+                                <div *ngIf="reply.editing">
+                                    <input [(ngModel)]="reply.editText" class="form-control" />
+                                    <button class="btn btn-sm btn-primary mt-3 mb-3"
+                                        (click)="saveEditReply(post.postsid, comment, reply)">Save</button>
+                                    <button class="btn btn-sm btn-secondary mt-3 mb-3 ms-3"
+                                        (click)="cancelEditReply(reply)">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="comment.showReplyInput" class="reply-input mt-2 ms-4">
+                        <input [(ngModel)]="comment.replyInput" class="form-control mb-2"
+                            placeholder="Write a reply..." />
+                        <button class="btn btn-primary btn-sm"
+                            (click)="replyToComment(post.postsid, comment)">Submit</button>
+                    </div>
                 </div>
+
             </div>
+
         </div>
     </div>
+</div>
