@@ -21,6 +21,9 @@
     </div>
     <div>
       <div *ngIf="post.showMessageInput">
+        <div *ngFor="let message of post.messages">
+          <p><strong>{{ message.username }}:</strong> {{ message.content }}</p>
+        </div>
         <div class="comment-input mb-3 d-flex align-items-center">
           <input [(ngModel)]="messageInput[post.postsid]" class="form-control me-2" placeholder="Write a message..." />
           <button class="btn btn-outline-primary" (click)="sendMessage(post.postsid)">Send</button>

@@ -94,7 +94,6 @@ function setupSocketIO(server) {
 
                 const [post] = await pool.query('SELECT messages FROM blog_posts WHERE postsid = ?', [postId]);
                 const existingMessages = JSON.parse(post[0]?.messages || '[]');
-
                 existingMessages.push(newMessage);
 
                 await pool.query('UPDATE blog_posts SET messages = ? WHERE postsid = ?', [JSON.stringify(existingMessages), postId]);

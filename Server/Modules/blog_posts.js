@@ -31,13 +31,13 @@ router.post('/posting', async (request, response) => {
     response.status(500).json({ error: 'An error occurred while creating the blog post', details: error });
   }
 });
-
 router.get('/blog_view', async (request, response) => {
   const userId = request.query.userId;
   try {
     const [results] = await pool.query(`
       SELECT 
         users.name, 
+        blog_posts.messages,
         blog_posts.created_at, 
         blog_posts.description, 
         blog_posts.postsid, 
@@ -54,7 +54,7 @@ router.get('/blog_view', async (request, response) => {
 
     const formattedResults = await Promise.all(results.map(async (post) => {
       const [comments] = await pool.query(`
-        SELECT comments.id, comments.user_id, comments.comment,comments.replies, users.name AS username
+        SELECT comments.id, comments.user_id, comments.comment, comments.replies, users.name AS username
         FROM comments
         INNER JOIN users ON comments.user_id = users.userid
         WHERE post_id = ?
@@ -71,13 +71,19 @@ router.get('/blog_view', async (request, response) => {
         }))
       }));
 
+      const allMessages = JSON.parse(post.messages || '[]').map(msg => ({
+        username: msg.username || 'unknown user',
+        content: msg.content || 'message not found',
+      }));
+
       return {
         ...post,
-        comment: allComments,
+        messages: allMessages,
+        comments: allComments,
       };
     }));
 
-    response.json(formattedResults);
+    response.json(formattedResults); // Send the response
   } catch (error) {
     console.error('Error fetching blog posts:', error);
     response.status(500).json({ message: 'Error fetching blog posts', error });
@@ -90,7 +96,6 @@ router.get('/myblog_view', async (request, response) => {
     const [results] = await pool.query(`
       SELECT 
         blog_posts.postsid, 
-        blog_posts.messages,
         blog_posts.user_id AS post_user_id, 
         users.name, 
         blog_posts.created_at, 

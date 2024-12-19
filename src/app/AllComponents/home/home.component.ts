@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
 
 export interface BlogPost {
+  showMessageInput: boolean;
   user_id: number;
   postsid: number;
   name: string;
@@ -16,9 +17,15 @@ export interface BlogPost {
   commentInput?: string;
   showCommentInput?: boolean;
   hasLiked: boolean;
-
-  showMessageInput?: boolean;
+  messages: Messages[];
 }
+export interface Messages {
+  showMessageInput?: boolean;
+  username: string;
+  userId: any;
+  content: string; 
+}
+
 
 export interface Comment {
 
@@ -50,7 +57,8 @@ export class HomeComponent implements OnInit {
   isLoggedIn: boolean = false;
   logindata: any = {};
   successMessageLike: boolean = false;
-  messageInput: { [postId: number]: string } = {};
+
+  messageInput: { [key: number]: string } = {};
 
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) {
     if (isPlatformBrowser(this.platformId)) {
@@ -127,7 +135,7 @@ export class HomeComponent implements OnInit {
     this.socket.on('newMessage', ({ postId, message }) => {
       const post = this.blogPosts.find(p => p.postsid === postId);
       if (post) {
-        post.comment.push(message);
+        post.messages.push(message);
       }
     });
 
@@ -348,7 +356,7 @@ export class HomeComponent implements OnInit {
       this.OpenModal();
       return;
     }
-
+  
     const message = this.messageInput[postId]?.trim();
     if (this.socket && message) {
       this.socket.emit('sendMessage', {
@@ -357,7 +365,7 @@ export class HomeComponent implements OnInit {
         userId: this.logindata.userid,
         userName: this.logindata.userName
       });
-
+  
       this.messageInput[postId] = '';
       const post = this.blogPosts.find(p => p.postsid === postId);
       if (post) {
@@ -367,22 +375,22 @@ export class HomeComponent implements OnInit {
       console.error('Message input is missing or invalid.');
     }
   }
-
   NewMessages(): void {
     if (this.socket) {
-      this.socket.on('newMessage', (newMessage: { postId: number; message: any }) => {
+      this.socket.on('newMessage', (newMessage: { postId: number; message: Messages }) => {
         const post = this.blogPosts.find(p => p.postsid === newMessage.postId);
         if (post) {
-          post.comment=newMessage.message;
+          post.messages.push(newMessage.message);
           this.cdr.detectChanges();
         }
       });
     }
   }
+  
   toggleMessageInput(post: BlogPost): void {
     post.showMessageInput = !post.showMessageInput;
   }
-  
+
   OpenModal() {
     const regModal = document.getElementById('regModal');
     if (regModal) {
