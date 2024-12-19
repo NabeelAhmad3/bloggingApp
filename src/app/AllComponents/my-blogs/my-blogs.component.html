@@ -70,6 +70,9 @@
                 <span class="fw-bold"> Likes {{ post.likes }}</span>
                 <span class="fw-bold"> Comments {{ post.comment.length || 0 }}</span>
             </div>
+            <div *ngFor="let message of post.messages">
+                <p><strong>{{ message.username }}:</strong> {{ message.content }}</p>
+              </div>
             <div>
                 <img src="assets/like.png" alt="likes" class="like-icon mb-3" (click)="likePost(post.postsid)" />
                 <img src="assets/comments.png" alt="comments" class="like-icon mb-3"

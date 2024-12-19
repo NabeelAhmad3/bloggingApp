@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
+import { Messages } from '../home/home.component';
 
 export interface Comment {
   replies: {
@@ -35,6 +36,7 @@ export interface BlogPost {
   editing?: boolean;
   editDescription?: string;
   editImage?: string;
+  messages: Messages[];
 }
 
 @Component({

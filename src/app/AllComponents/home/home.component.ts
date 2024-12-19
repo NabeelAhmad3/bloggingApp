@@ -28,7 +28,6 @@ export interface Messages {
 
 
 export interface Comment {
-
   replies: {
     replyId: number;
     editing: any;
@@ -57,7 +56,6 @@ export class HomeComponent implements OnInit {
   isLoggedIn: boolean = false;
   logindata: any = {};
   successMessageLike: boolean = false;
-
   messageInput: { [key: number]: string } = {};
 
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) {

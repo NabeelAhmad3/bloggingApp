@@ -31,6 +31,7 @@ router.post('/posting', async (request, response) => {
     response.status(500).json({ error: 'An error occurred while creating the blog post', details: error });
   }
 });
+
 router.get('/blog_view', async (request, response) => {
   const userId = request.query.userId;
   try {
@@ -96,6 +97,7 @@ router.get('/myblog_view', async (request, response) => {
     const [results] = await pool.query(`
       SELECT 
         blog_posts.postsid, 
+        blog_posts.messages,
         blog_posts.user_id AS post_user_id, 
         users.name, 
         blog_posts.created_at, 
@@ -130,9 +132,14 @@ router.get('/myblog_view', async (request, response) => {
         })),
       }));
 
+      const allMessages = JSON.parse(post.messages || '[]').map(msg => ({
+        username: msg.username || 'unknown user',
+        content: msg.content || 'message not found',
+      }));
+
       return {
         ...post,
-        messages: JSON.parse(post.messages || '[]'),
+        messages: allMessages,
         comment: allComments,
       };
     }));
