@@ -16,6 +16,8 @@ export interface BlogPost {
   commentInput?: string;
   showCommentInput?: boolean;
   hasLiked: boolean;
+
+  showMessageInput?: boolean;
 }
 
 export interface Comment {
@@ -48,6 +50,7 @@ export class HomeComponent implements OnInit {
   isLoggedIn: boolean = false;
   logindata: any = {};
   successMessageLike: boolean = false;
+  messageInput: { [postId: number]: string } = {};
 
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) {
     if (isPlatformBrowser(this.platformId)) {
@@ -120,6 +123,14 @@ export class HomeComponent implements OnInit {
     this.socket.on('replyDeleted', (data: { postId: number, commentId: number, replyId: number }) => {
       this.removeReply(data.postId, data.commentId, data.replyId);
     });
+
+    this.socket.on('newMessage', ({ postId, message }) => {
+      const post = this.blogPosts.find(p => p.postsid === postId);
+      if (post) {
+        post.comment.push(message);
+      }
+    });
+
   }
 
   private updatePostLikes(updatedPost: { postId: number; likes: number }): void {
@@ -331,6 +342,47 @@ export class HomeComponent implements OnInit {
       console.error('Socket connection is not established.');
     }
   }
+
+  sendMessage(postId: number): void {
+    if (!this.isLoggedIn) {
+      this.OpenModal();
+      return;
+    }
+
+    const message = this.messageInput[postId]?.trim();
+    if (this.socket && message) {
+      this.socket.emit('sendMessage', {
+        postId,
+        message,
+        userId: this.logindata.userid,
+        userName: this.logindata.userName
+      });
+
+      this.messageInput[postId] = '';
+      const post = this.blogPosts.find(p => p.postsid === postId);
+      if (post) {
+        post.showMessageInput = false;
+      }
+    } else {
+      console.error('Message input is missing or invalid.');
+    }
+  }
+
+  NewMessages(): void {
+    if (this.socket) {
+      this.socket.on('newMessage', (newMessage: { postId: number; message: any }) => {
+        const post = this.blogPosts.find(p => p.postsid === newMessage.postId);
+        if (post) {
+          post.comment=newMessage.message;
+          this.cdr.detectChanges();
+        }
+      });
+    }
+  }
+  toggleMessageInput(post: BlogPost): void {
+    post.showMessageInput = !post.showMessageInput;
+  }
+  
   OpenModal() {
     const regModal = document.getElementById('regModal');
     if (regModal) {

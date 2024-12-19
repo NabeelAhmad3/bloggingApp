@@ -82,6 +82,30 @@ function setupSocketIO(server) {
                 socket.emit('error', { message: 'Failed to delete comment' });
             }
         });
+
+        socket.on('sendMessage', async ({ postId, message, userId, userName }) => {
+            try {
+                const newMessage = {
+                    messageId: Date.now(),
+                    userId,
+                    username: userName,
+                    content: message
+                };
+
+                const [post] = await pool.query('SELECT messages FROM blog_posts WHERE postsid = ?', [postId]);
+                const existingMessages = JSON.parse(post[0]?.messages || '[]');
+
+                existingMessages.push(newMessage);
+
+                await pool.query('UPDATE blog_posts SET messages = ? WHERE postsid = ?', [JSON.stringify(existingMessages), postId]);
+
+                io.emit('newMessage', { postId, message: newMessage });
+            } catch (error) {
+                console.error('Error handling sendMessage:', error);
+            }
+        });
+
+
         socket.on('replyToComment', async ({ parentCommentId, comment, userId, userName }) => {
             try {
                 const createdAt = new Date().toISOString();

@@ -90,6 +90,7 @@ router.get('/myblog_view', async (request, response) => {
     const [results] = await pool.query(`
       SELECT 
         blog_posts.postsid, 
+        blog_posts.messages,
         blog_posts.user_id AS post_user_id, 
         users.name, 
         blog_posts.created_at, 
@@ -121,11 +122,12 @@ router.get('/myblog_view', async (request, response) => {
         replies: JSON.parse(comment.replies || '[]').map(reply => ({
           username: reply.username,
           comment: reply.comment,
-        }))
+        })),
       }));
 
       return {
         ...post,
+        messages: JSON.parse(post.messages || '[]'),
         comment: allComments,
       };
     }));
