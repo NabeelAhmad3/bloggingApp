@@ -23,6 +23,8 @@ export interface Comment {
 }
 
 export interface BlogPost {
+
+  showMessageInput: boolean;
   name: any;
   created_at: string | number | Date;
   postsid: number;
@@ -56,6 +58,7 @@ export class MyBlogsComponent implements OnInit {
   successMessageEdit: boolean = false;
   successMessageDelete: boolean = false;
   successMessageLike: boolean = false;
+  messageInput: { [key: number]: string } = {};
 
 
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object, private cdr: ChangeDetectorRef) {
@@ -126,6 +129,13 @@ export class MyBlogsComponent implements OnInit {
 
     this.socket.on('replyDeleted', (data: { postId: number, commentId: number, replyId: number }) => {
       this.removeReply(data.postId, data.commentId, data.replyId);
+    });
+
+    this.socket.on('newMessage', ({ postId, message }) => {
+      const post = this.blogPosts.find(p => p.postsid === postId);
+      if (post) {
+        post.messages.push(message);
+      }
     });
   }
 
@@ -299,7 +309,7 @@ export class MyBlogsComponent implements OnInit {
     }
   }
 
-  
+
   replyToComment(postId: number, comment: Comment): void {
     const replyInput = comment.replyInput?.trim();
     if (this.socket && postId && comment.commentId && replyInput) {
@@ -374,5 +384,4 @@ export class MyBlogsComponent implements OnInit {
       console.error('Socket connection is not established.');
     }
   }
-
 }

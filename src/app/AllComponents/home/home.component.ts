@@ -19,13 +19,13 @@ export interface BlogPost {
   hasLiked: boolean;
   messages: Messages[];
 }
+
 export interface Messages {
   showMessageInput?: boolean;
   username: string;
   userId: any;
-  content: string; 
+  content: string;
 }
-
 
 export interface Comment {
   replies: {
@@ -50,6 +50,7 @@ export interface Comment {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
+
 export class HomeComponent implements OnInit {
   blogPosts: BlogPost[] = [];
   private socket: Socket | null = null;
@@ -155,6 +156,7 @@ export class HomeComponent implements OnInit {
       this.cdr.detectChanges();
     }
   }
+
   private removeComment(postId: number, commentId: number): void {
     const post = this.blogPosts.find(p => p.postsid === postId);
     if (post) {
@@ -162,6 +164,7 @@ export class HomeComponent implements OnInit {
       this.cdr.detectChanges();
     }
   }
+
   private updateCommentReplies(updatedReplies: { parentCommentId: number; replies: any[] }): void {
     this.blogPosts.forEach(post => {
       const comment = post.comment.find(c => c.commentId === updatedReplies.parentCommentId);
@@ -182,6 +185,7 @@ export class HomeComponent implements OnInit {
       }
     }
   }
+
   likePost(postId: number): void {
     if (!this.isLoggedIn) {
       this.OpenModal();
@@ -292,6 +296,7 @@ export class HomeComponent implements OnInit {
   toggleReplyInput(comment: Comment): void {
     comment.showReplyInput = !comment.showReplyInput;
   }
+
   editReply(comment: Comment, reply: any): void {
     reply.editing = true;
     reply.editText = reply.comment;
@@ -326,13 +331,11 @@ export class HomeComponent implements OnInit {
     reply.editText = '';
   }
 
-
   deleteReply(postId: number, comment: Comment, replyId: number): void {
     if (!replyId) {
       console.error('Reply ID is null or undefined. Post ID:', postId);
       return;
     }
-
     const userId = parseInt(this.logindata.userid, 10);
 
     if (this.socket) {
@@ -354,7 +357,7 @@ export class HomeComponent implements OnInit {
       this.OpenModal();
       return;
     }
-  
+
     const message = this.messageInput[postId]?.trim();
     if (this.socket && message) {
       this.socket.emit('sendMessage', {
@@ -363,7 +366,7 @@ export class HomeComponent implements OnInit {
         userId: this.logindata.userid,
         userName: this.logindata.userName
       });
-  
+
       this.messageInput[postId] = '';
       const post = this.blogPosts.find(p => p.postsid === postId);
       if (post) {
@@ -373,6 +376,7 @@ export class HomeComponent implements OnInit {
       console.error('Message input is missing or invalid.');
     }
   }
+
   NewMessages(): void {
     if (this.socket) {
       this.socket.on('newMessage', (newMessage: { postId: number; message: Messages }) => {
@@ -384,7 +388,7 @@ export class HomeComponent implements OnInit {
       });
     }
   }
-  
+
   toggleMessageInput(post: BlogPost): void {
     post.showMessageInput = !post.showMessageInput;
   }
