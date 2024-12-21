@@ -43,7 +43,7 @@
   width: 40px;
   height: 40px;
   margin-right: 12px;
-  transition: transform 0.3s ease, filter 0.3s ease;
+  transition: transform 0.2s ease, filter 0.2s ease;
   cursor: pointer;
 }
 
@@ -52,18 +52,15 @@
   filter: brightness(1.2);
 }
 .card {
-  transition: transform 0.3s ease, 
-  box-shadow 0.3s ease;
+  transition: transform 0.2s ease, 
+  box-shadow 0.2s ease;
   border-radius: 10px;
   overflow: hidden;
 }
 
 .card:hover {
-  transform: scale(1.02);
+  transform: scale(1.01);
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
 }
 
-.card-body {
-  transition: background-color 0.2s ease;
-}
 
