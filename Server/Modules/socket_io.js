@@ -82,14 +82,14 @@ function setupSocketIO(server) {
                 socket.emit('error', { message: 'Failed to delete comment' });
             }
         });
-
         socket.on('sendMessage', async ({ postId, message, userId, userName }) => {
             try {
                 const newMessage = {
                     messageId: Date.now(),
                     userId,
                     username: userName,
-                    content: message
+                    content: message,
+                    replies: []
                 };
 
                 const [post] = await pool.query('SELECT messages FROM blog_posts WHERE postsid = ?', [postId]);
@@ -104,6 +104,34 @@ function setupSocketIO(server) {
             }
         });
 
+        socket.on('replyToMessage', async ({ postId, parentMessageId, message, userId, userName }) => {
+
+            try {
+                const [post] = await pool.query('SELECT messages FROM blog_posts WHERE postsid = ?', [postId]);
+                const existingMessages = JSON.parse(post[0]?.messages || '[]');
+
+                const parentMessage = existingMessages.find(msg => msg.messageId === parentMessageId);
+
+                if (!parentMessage) {
+                    throw new Error('Parent message not found');
+                }
+
+                const newReply = {
+                    messageId: Date.now(),
+                    userId,
+                    username: userName,
+                    content: message,
+                };
+
+                parentMessage.replies.push(newReply);
+
+                await pool.query('UPDATE blog_posts SET messages = ? WHERE postsid = ?', [JSON.stringify(existingMessages), postId]);
+
+                io.emit('messageReplyAdded', { parentMessageId, reply: newReply });
+            } catch (error) {
+                console.error('Error handling reply to message:', error);
+            }
+        });
 
         socket.on('replyToComment', async ({ parentCommentId, comment, userId, userName }) => {
             try {

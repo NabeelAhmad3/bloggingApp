@@ -73,8 +73,13 @@ router.get('/blog_view', async (request, response) => {
       }));
 
       const allMessages = JSON.parse(post.messages || '[]').map(msg => ({
-        username: msg.username || 'unknown user',
-        content: msg.content || 'message not found',
+        username: msg.username,
+        content: msg.content,
+        messageId: msg.messageId,
+        replies: msg.replies.map(reply => ({
+          username: reply.username,
+          content: reply.content,
+        })),
       }));
 
       return {
@@ -133,8 +138,13 @@ router.get('/myblog_view', async (request, response) => {
       }));
 
       const allMessages = JSON.parse(post.messages || '[]').map(msg => ({
-        username: msg.username || 'unknown user',
-        content: msg.content || 'message not found',
+        username: msg.username,
+        content: msg.content,
+        messageId: msg.messageId,
+        replies: msg.replies.map(reply => ({
+          username: reply.username,
+          content: reply.content,
+        })),
       }));
 
       return {

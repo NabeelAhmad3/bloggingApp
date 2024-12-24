@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
-import { Messages } from '../home/home.component';
 
 export interface Comment {
   replies: {
@@ -21,6 +20,23 @@ export interface Comment {
   editing?: boolean;
   editText?: string;
 }
+
+export interface Messages {
+  messageId: number;
+  content: string;
+  userId: number;
+  username: string;
+  createdAt: string | Date;
+  replies: {
+    replyId: number;
+    content: string;
+    userId: number;
+    username: string;
+  }[];
+  replyInput: string;
+  showReplyInput: boolean;
+}
+
 
 export interface BlogPost {
 
@@ -65,7 +81,8 @@ export class MyBlogsComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       this.logindata = {
         token: localStorage.getItem('authToken'),
-        userid: localStorage.getItem('authUserId')
+        userid: localStorage.getItem('authUserId'),
+        userName: localStorage.getItem('userName')
       };
       this.isLoggedIn = !!this.logindata.token;
     }
@@ -137,6 +154,17 @@ export class MyBlogsComponent implements OnInit {
         post.messages.push(message);
       }
     });
+
+    this.socket.on('messageReplyAdded', (data: { parentMessageId: number; reply: any }) => {
+      this.blogPosts.forEach(post => {
+        const message = post.messages.find(m => m.messageId === data.parentMessageId);
+        if (message) {
+          message.replies.push(data.reply);
+        }
+      });
+      this.cdr.detectChanges();
+    });
+
   }
 
   private updatePostLikes(updatedPost: { postId: number; likes: number }): void {
@@ -384,4 +412,28 @@ export class MyBlogsComponent implements OnInit {
       console.error('Socket connection is not established.');
     }
   }
+  toggleMessageInput(post: BlogPost): void {
+    post.showMessageInput = !post.showMessageInput;
+  }
+  toggleMessageReplyInput(message: Messages): void {
+    message.showReplyInput = !message.showReplyInput;
+  }
+
+  replyToMessage(postId: number, message: Messages): void {
+    const replyInput = message.replyInput?.trim();
+    if (this.socket && postId && message.messageId && replyInput) {
+      this.socket.emit('replyToMessage', {
+        postId,
+        parentMessageId: message.messageId,
+        message: replyInput,
+        userId: this.logindata.userid,
+        userName: this.logindata.userName
+      });
+
+      message.replyInput = '';
+    } else {
+      console.error('Reply input or parent message ID is missing or invalid.');
+    }
+  }
+
 }

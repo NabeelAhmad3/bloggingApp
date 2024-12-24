@@ -21,10 +21,19 @@ export interface BlogPost {
 }
 
 export interface Messages {
-  showMessageInput?: boolean;
-  username: string;
-  userId: any;
+  messageId: number;
   content: string;
+  userId: number;
+  username: string;
+  createdAt: string | Date;
+  replies: {
+    replyId: number;
+    content: string;
+    userId: number;
+    username: string;
+  }[];
+  replyInput: string;
+  showReplyInput: boolean;
 }
 
 export interface Comment {
@@ -138,6 +147,15 @@ export class HomeComponent implements OnInit {
       }
     });
 
+    this.socket.on('messageReplyAdded', (data: { parentMessageId: number; reply: any }) => {
+      this.blogPosts.forEach(post => {
+        const message = post.messages.find(m => m.messageId === data.parentMessageId);
+        if (message) {
+          message.replies.push(data.reply);
+        }
+      });
+      this.cdr.detectChanges();
+    });
   }
 
   private updatePostLikes(updatedPost: { postId: number; likes: number }): void {
@@ -368,10 +386,10 @@ export class HomeComponent implements OnInit {
       });
 
       this.messageInput[postId] = '';
-      const post = this.blogPosts.find(p => p.postsid === postId);
-      if (post) {
-        post.showMessageInput = false;
-      }
+      // const post = this.blogPosts.find(p => p.postsid === postId);
+      // if (post) {
+      //   post.showMessageInput = false;
+      // }
     } else {
       console.error('Message input is missing or invalid.');
     }
@@ -398,6 +416,28 @@ export class HomeComponent implements OnInit {
     if (regModal) {
       regModal.classList.add('show');
       regModal.setAttribute('style', 'display: block');
+    }
+  }
+
+  toggleMessageReplyInput(message: Messages): void {
+    message.showReplyInput = !message.showReplyInput;
+  }
+
+  replyToMessage(postId: number, message: Messages): void {
+
+    const replyInput = message.replyInput?.trim();
+    if (this.socket && postId && message.messageId && replyInput) {
+      this.socket.emit('replyToMessage', {
+        postId,
+        parentMessageId: message.messageId,
+        message: replyInput,
+        userId: this.logindata.userid,
+        userName: this.logindata.userName
+      });
+
+      message.replyInput = '';
+    } else {
+      console.error('Reply input or parent message ID is missing or invalid.');
     }
   }
 
