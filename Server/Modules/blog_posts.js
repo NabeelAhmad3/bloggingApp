@@ -85,11 +85,11 @@ router.get('/blog_view', async (request, response) => {
       return {
         ...post,
         messages: allMessages,
-        comments: allComments,
+        comment: allComments,
       };
     }));
 
-    response.json(formattedResults); // Send the response
+    response.json(formattedResults); 
   } catch (error) {
     console.error('Error fetching blog posts:', error);
     response.status(500).json({ message: 'Error fetching blog posts', error });

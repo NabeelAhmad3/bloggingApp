@@ -82,19 +82,19 @@
                                 </div>
                             </div>
 
-                            <div class="mt-3">
-                                <div class="input-group">
-                                    <input [(ngModel)]="message.replyInput" type="text" class="form-control"
-                                        placeholder="Write a reply..." />
-                                    <button class="btn btn-primary" (click)="replyToMessage(post.postsid, message)">
-                                        Send
-                                    </button>
-                                </div>
-                            </div>
-
                             <div *ngFor="let reply of message.replies" class="mt-3">
                                 <div class="alert alert-light py-1 px-3">
                                     <strong>{{ reply.username }}</strong>: {{ reply.content }}
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <div class="input-group">
+                                    <input [(ngModel)]="message.replyInput" type="text" class="form-control"
+                                        placeholder="Write something..." />
+                                    <button class="btn btn-primary" (click)="replyToMessage(post.postsid, message)">
+                                        Send
+                                    </button>
                                 </div>
                             </div>
                         </div>

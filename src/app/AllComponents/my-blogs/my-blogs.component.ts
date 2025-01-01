@@ -1,61 +1,11 @@
+import { Messages } from './../home/home.component';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
-
-export interface Comment {
-  replies: {
-    replyId: number;
-    editing: any;
-    editText: any; userId: any; username: string; comment: string
-  }[];
-  replyInput: string;
-  showReplyInput: boolean;
-  commentId: number;
-  username: string;
-  postId: number;
-  userId: number;
-  comment: any;
-  editing?: boolean;
-  editText?: string;
-}
-
-export interface Messages {
-  messageId: number;
-  content: string;
-  userId: number;
-  username: string;
-  createdAt: string | Date;
-  replies: {
-    replyId: number;
-    content: string;
-    userId: number;
-    username: string;
-  }[];
-  replyInput: string;
-  showReplyInput: boolean;
-}
-
-
-export interface BlogPost {
-
-  showMessageInput: boolean;
-  name: any;
-  created_at: string | number | Date;
-  postsid: number;
-  description: string;
-  image?: string;
-  likes: number;
-  comment: Comment[];
-  commentInput: string;
-  showCommentInput: boolean;
-  hasLiked: boolean;
-  editing?: boolean;
-  editDescription?: string;
-  editImage?: string;
-  messages: Messages[];
-}
+import { Comment } from '../home/home.component';
+import { BlogPost } from './../home/home.component';
 
 @Component({
   selector: 'app-my-blogs',

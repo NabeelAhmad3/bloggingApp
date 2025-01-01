@@ -11,13 +11,17 @@ export interface BlogPost {
   name: string;
   created_at: Date;
   description: string;
-  image: string;
+  image?: string;
   likes: number;
   comment: Comment[];
   commentInput?: string;
   showCommentInput?: boolean;
   hasLiked: boolean;
   messages: Messages[];
+
+  editing?: boolean;
+  editDescription?: string;
+  editImage?: string;
 }
 
 export interface Messages {
